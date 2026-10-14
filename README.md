@@ -3,3 +3,8 @@
 Site do app MANO: página inicial, política de privacidade, termos de uso e exclusão de conta.
 
 As páginas são geradas a partir de `shared/mano-legal.ts` do app (mesmo texto que aparece dentro do MANO) e publicadas pelo Cloudflare Pages.
+
+## Atualizar as páginas
+1. Edite o texto em `shared/mano-legal.ts`, no repositório do app (`ikmaciel/kao`).
+2. Gere o site: `node ferramentas/gerar-site.mjs <caminho>/shared/mano-legal.ts . <caminho>/public/mano-icon-192.png`
+3. Faça o commit aqui. O Cloudflare Pages publica sozinho.
