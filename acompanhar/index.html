@@ -72,6 +72,7 @@
     })
     var recente = (s.signals || [])[0]
     if (recente && avisos[recente.signalType]) { $("alerta").hidden = false; $("alerta").className = "caixa alerta" + (recente.signalType === "stop" ? " parar" : ""); $("alerta-nome").textContent = recente.riderName; $("alerta-texto").textContent = avisos[recente.signalType].t + "." } else $("alerta").hidden = true
+    mapa.invalidateSize()
     if (!enquadrou && pontos.length > 1) { mapa.fitBounds(L.latLngBounds(pontos), { padding: [45, 45] }); enquadrou = true }
     else if (!enquadrou && pontos.length === 1) { mapa.setView(pontos[0], 14); enquadrou = true }
   }

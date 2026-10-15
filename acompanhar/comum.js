@@ -53,6 +53,11 @@
   function novoMapa(no) {
     var mapa = L.map(no).setView([-15.8, -47.9], 5)
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(mapa)
+    // O mapa nasce antes de o espaço dele ter o tamanho final; sem recalcular, linhas e enquadramento somem.
+    var ajustar = function () { mapa.invalidateSize() }
+    setTimeout(ajustar, 100)
+    if (window.ResizeObserver) new ResizeObserver(ajustar).observe(no)
+    else window.addEventListener("resize", ajustar)
     return mapa
   }
 

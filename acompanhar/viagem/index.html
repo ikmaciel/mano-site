@@ -62,6 +62,7 @@
         .bindTooltip(M.escapar(st.aoVivo ? s.trip.riderName : s.trip.riderName + " · último sinal " + M.hora(p.updatedAt)), { permanent: !st.aoVivo, direction: "top", offset: [0, -24] })
       pontos.push([p.latitude, p.longitude])
     }
+    mapa.invalidateSize()
     if (!enquadrou && pontos.length > 1) { mapa.fitBounds(L.latLngBounds(pontos), { padding: [45, 45] }); enquadrou = true }
     else if (!enquadrou && pontos.length === 1) { mapa.setView(pontos[0], 14); enquadrou = true }
     else if (p) mapa.panTo([p.latitude, p.longitude])
