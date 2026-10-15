@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MANO — Convite para um comboio</title>
+<meta name="description" content="Você recebeu um convite para um comboio no MANO. Abra no app para pedir para entrar.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/mano.png">
+<link rel="stylesheet" href="/estilo.css">
+<style>.secondary{color:var(--fg);background:transparent;border:1px solid var(--line)}[hidden]{display:none!important}</style>
+</head>
+<body>
+<main>
+<header class="top"><img src="/mano.png" alt="Brasão do MANO"><div><strong>MANO</strong><span>Viaje sozinho. Nunca desacompanhado.</span></div></header>
+<h1>Convite para um comboio</h1>
+<div id="valido" hidden>
+<p>Toque no botão para abrir o convite no MANO e pedir para entrar. Quem organiza aprova, e as posições só aparecem depois do aceite.</p>
+<a class="action" id="abrir" href="#">Abrir no MANO</a>
+<section><h2>Ainda não tem o MANO?</h2>
+<p id="instalar-texto">Instale o app e depois <strong>volte à conversa e toque de novo no link do convite</strong>. O MANO abre direto no comboio.</p>
+<a class="action secondary" id="loja" href="https://play.google.com/store/apps/details?id=com.manobrotherhood.app">Instalar pela Google Play</a>
+<p id="iphone" hidden>Por enquanto, o MANO está disponível só para Android.</p>
+</section>
+</div>
+<div id="invalido" hidden>
+<p>Este link de convite está incompleto. Peça a quem organizou o comboio para mandar o convite de novo pelo MANO.</p>
+</div>
+<footer>Dúvidas: <a href="mailto:privacidade@manobrotherhood.com">privacidade@manobrotherhood.com</a></footer>
+</main>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search)
+  var code = (params.get("codigo") || "").trim().toUpperCase()
+  if (!/^[A-Z0-9]{4,16}$/.test(code)) { document.getElementById("invalido").hidden = false; return }
+  document.getElementById("valido").hidden = false
+  // O APK de testes (MANO Testes) usa outro endereço e outro pacote.
+  var testes = params.get("app") === "testes"
+  var scheme = testes ? "mano-testes" : "mano"
+  var pkg = testes ? "com.manobrotherhood.app.test" : "com.manobrotherhood.app"
+  var android = /Android/i.test(navigator.userAgent)
+  var iphone = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+  var deep = scheme + "://comboio?codigo=" + encodeURIComponent(code)
+  // No Android, o intent abre o app; se ele não estiver instalado, volta para esta página em vez de mostrar erro.
+  var fallback = location.origin + location.pathname + "?" + params.toString() + "#sem-app"
+  var link = android ? "intent://comboio?codigo=" + encodeURIComponent(code) + "#Intent;scheme=" + scheme + ";package=" + pkg + ";S.browser_fallback_url=" + encodeURIComponent(fallback) + ";end" : deep
+  document.getElementById("abrir").href = link
+  if (testes) {
+    document.getElementById("loja").hidden = true
+    document.getElementById("instalar-texto").textContent = "Instale o MANO Testes e depois volte à conversa e toque de novo no link do convite."
+  }
+  if (iphone) { document.getElementById("abrir").hidden = true; document.getElementById("loja").hidden = true; document.getElementById("iphone").hidden = false }
+  // Tenta abrir sozinho uma vez; se o app não existir, a página continua com as instruções.
+  if (android && location.hash !== "#sem-app") location.href = link
+})()
+</script>
+</body>
+</html>

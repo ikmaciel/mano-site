@@ -8,3 +8,6 @@ As páginas são geradas a partir de `shared/mano-legal.ts` do app (mesmo texto 
 1. Edite o texto em `shared/mano-legal.ts`, no repositório do app (`ikmaciel/kao`).
 2. Gere o site: `node ferramentas/gerar-site.mjs <caminho>/shared/mano-legal.ts . <caminho>/public/mano-icon-192.png`
 3. Faça o commit aqui. O Cloudflare Pages publica sozinho.
+
+## Páginas escritas à mão
+- `comboio/entrar/`: página do link de convite do comboio. Abre o MANO (`mano://` ou `mano-testes://` quando há `&app=testes`) e, sem o app, orienta a instalar e tocar no link de novo. O gerador não mexe nela.
