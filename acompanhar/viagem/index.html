@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MANO — Viagem ao vivo</title>
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="/mano.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="/acompanhar/comum.css">
+</head>
+<body>
+<main>
+<header><img src="/mano.png" alt="MANO BROTHERHOOD"><div><small>VIAGEM AO VIVO</small><h1 id="nome">Motociclista MANO</h1><p id="trajeto">Carregando viagem…</p></div><span class="selo off" id="selo">○ CARREGANDO</span></header>
+<section id="mapa" aria-label="Mapa da viagem"></section>
+<aside class="caixa" id="resumo"><b id="titulo">Aguardando a primeira posição</b><p id="detalhe">O mapa será atualizado assim que o celular enviar a primeira localização.</p><p id="comboio" hidden></p><p class="legenda"><i></i><i></i>Rota planejada e caminho percorrido. Pontos vermelhos são avisos, com tipo e horário.</p></aside>
+<footer><b>MANO BROTHERHOOD</b><span>Viaje sozinho. Nunca desacompanhado.</span></footer>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="/acompanhar/comum.js"></script>
+<script>
+(function () {
+  var M = window.MANO, $ = function (id) { return document.getElementById(id) }
+  var mapa = M.novoMapa($("mapa")), camada = L.layerGroup().addTo(mapa), enquadrou = false, ultimo = null, conectado = true
+
+  function mostrarSinal(s) {
+    var p = s.position
+    var st = M.sinal({ atualizadoEm: p && p.updatedAt, agoraServidor: s.serverTime, conectado: conectado, encerrada: s.status === "ended", encerradaEm: s.endedAt, lugar: s.lastPlace })
+    $("selo").textContent = st.selo; $("selo").className = "selo" + (st.aoVivo ? "" : " off")
+    $("titulo").textContent = s.status === "suspended" ? "Compartilhamento pausado" : s.status === "ended" ? "Viagem encerrada" : st.aoVivo ? "Posição atual compartilhada" : p ? "Último local conhecido" : "Aguardando a primeira posição"
+    $("detalhe").textContent = s.status === "suspended" ? "O MANO perguntou se a viagem continua e não teve resposta. A localização volta a aparecer aqui quando o motociclista confirmar." : st.texto + (!conectado ? " Sem conexão com o servidor agora; o mapa tenta de novo sozinho." : "")
+    return st
+  }
+
+  function desenhar(s) {
+    ultimo = s
+    $("nome").textContent = s.trip.riderName || "Motociclista MANO"
+    $("trajeto").textContent = (s.trip.origin || "") + " → " + (s.trip.destination || "")
+    var st = mostrarSinal(s)
+    camada.clearLayers()
+    var rota = s.routeCoordinates || [], feito = s.traveledCoordinates || [], pontos = rota.concat(feito)
+    if (rota.length > 1) L.polyline(rota, { color: "#c84632", weight: 6, opacity: .55, dashArray: "10 8" }).addTo(camada)
+    if (feito.length > 1) L.polyline(feito, { color: "#24343b", weight: 7, opacity: .95 }).addTo(camada)
+    ;(s.notices || []).forEach(function (n) {
+      L.circleMarker([n.latitude, n.longitude], { radius: 9, color: "#fff", weight: 2, fillColor: "#a7181d", fillOpacity: 1 }).addTo(camada)
+        .bindTooltip(M.escapar(n.kind + (n.characteristics ? " · " + n.characteristics : "") + " · " + M.hora(n.createdAt)))
+      pontos.push([n.latitude, n.longitude])
+    })
+    // Comboio: os outros participantes que confirmaram aparecem junto.
+    var outros = (s.convoy && s.convoy.riders) || []
+    outros.forEach(function (r) {
+      var parado = s.serverTime - r.updatedAt > M.AO_VIVO_MS
+      L.circleMarker([r.latitude, r.longitude], { radius: 10, color: "#fff", weight: 3, fillColor: parado ? "#8a8a8a" : "#c84632", fillOpacity: 1 }).addTo(camada)
+        .bindTooltip(M.escapar(parado ? r.riderName + " · sem sinal desde " + M.hora(r.updatedAt) : r.riderName), { direction: "top" })
+    })
+    if (s.convoy) { $("comboio").hidden = false; $("comboio").textContent = "Comboio " + s.convoy.name + ": " + (outros.length + 1) + " motociclista" + (outros.length ? "s" : "") + " no mapa" + (s.convoy.pendingInvites ? " · " + s.convoy.pendingInvites + " convidado(s) ainda não confirmaram" : "") + "." }
+    var p = s.position
+    if (p) {
+      var icone = L.divIcon({ className: "", html: '<span class="moto' + (st.aoVivo ? "" : " cinza") + '"><img src="/mano-rider.svg" alt=""></span>', iconSize: [48, 48], iconAnchor: [24, 24] })
+      L.marker([p.latitude, p.longitude], { icon: icone }).addTo(camada)
+        .bindTooltip(M.escapar(st.aoVivo ? s.trip.riderName : s.trip.riderName + " · último sinal " + M.hora(p.updatedAt)), { permanent: !st.aoVivo, direction: "top", offset: [0, -24] })
+      pontos.push([p.latitude, p.longitude])
+    }
+    if (!enquadrou && pontos.length > 1) { mapa.fitBounds(L.latLngBounds(pontos), { padding: [45, 45] }); enquadrou = true }
+    else if (!enquadrou && pontos.length === 1) { mapa.setView(pontos[0], 14); enquadrou = true }
+    else if (p) mapa.panTo([p.latitude, p.longitude])
+  }
+
+  M.acompanhar("viagem-publica",
+    function (s) { conectado = true; desenhar(s) },
+    function (msg, jaRecebeu) { conectado = false; if (ultimo) mostrarSinal(ultimo); if (!jaRecebeu) { $("titulo").textContent = "Reconectando…"; $("detalhe").textContent = msg + " O mapa continuará tentando." } },
+    function (msg) { $("selo").textContent = "✓ ENCERRADO"; $("selo").className = "selo off"; $("titulo").textContent = "Acompanhamento encerrado"; $("detalhe").textContent = msg; camada.clearLayers() })
+})()
+</script>
+</body>
+</html>

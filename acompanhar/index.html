@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MANO — Comboio ao vivo</title>
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="/mano.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="/acompanhar/comum.css">
+</head>
+<body>
+<main>
+<header><img src="/mano.png" alt="MANO BROTHERHOOD"><div><small>COMBOIO AO VIVO</small><h1 id="nome">Comboio MANO</h1><p id="trajeto">Carregando viagem…</p></div><span class="selo off" id="selo">○ CARREGANDO</span></header>
+<section id="mapa" aria-label="Mapa do comboio"></section>
+<aside class="caixa" id="resumo"><b id="titulo">Carregando o comboio</b><p id="detalhe">As posições aparecem assim que os celulares enviarem a localização.</p></aside>
+<aside class="caixa alerta" id="alerta" hidden><b id="alerta-nome"></b><p id="alerta-texto"></p></aside>
+<footer><b>MANO BROTHERHOOD</b><span>Viaje sozinho. Nunca desacompanhado.</span></footer>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="/acompanhar/comum.js"></script>
+<script>
+(function () {
+  var M = window.MANO, $ = function (id) { return document.getElementById(id) }
+  var avisos = {
+    fuel: { s: "⛽", t: "quer abastecer no próximo posto" },
+    bathroom: { s: "WC", t: "pediu parada com banheiro" },
+    stopped: { s: "!", t: "está parado" },
+    stop: { s: "!", t: "pediu para o grupo encostar com segurança" },
+  }
+  var mapa = M.novoMapa($("mapa")), rotas = L.layerGroup().addTo(mapa), motos = L.layerGroup().addTo(mapa), enquadrou = false, conectado = true, ultimo = null
+
+  function resumo(s) {
+    var maisNovo = (s.positions || []).reduce(function (a, p) { return Math.max(a, p.updatedAt) }, 0) || null
+    var st = M.sinal({ atualizadoEm: maisNovo, agoraServidor: s.serverTime, conectado: conectado, encerrada: s.status === "ended" })
+    var aguardando = s.status === "boarding" || s.status === "planned"
+    $("selo").textContent = aguardando ? "○ AGUARDANDO A SAÍDA" : st.selo; $("selo").className = "selo" + (st.aoVivo && !aguardando ? "" : " off")
+    var n = (s.positions || []).length
+    $("titulo").textContent = n + " motociclista" + (n === 1 ? "" : "s") + " no trajeto"
+    var semSinal = (s.positions || []).filter(function (p) { return s.serverTime - p.updatedAt > M.AO_VIVO_MS })
+    $("detalhe").textContent = (s.status === "ended" ? "Comboio encerrado. Por privacidade, as posições e os trajetos não aparecem mais."
+      : semSinal.length ? semSinal.map(function (p) { return p.riderName + ": sem sinal desde " + M.hora(p.updatedAt) }).join(" · ") + ". Quando o sinal voltar, o trecho percorrido aparece no mapa."
+      : "Posições ao vivo compartilhadas somente durante este comboio. Se o sinal cair, o último local e o horário ficam no mapa.") + (!conectado ? " Sem conexão com o servidor agora; o mapa tenta de novo sozinho." : "")
+  }
+
+  function desenhar(s) {
+    ultimo = s
+    $("nome").textContent = s.convoy.name || "Comboio MANO"
+    $("trajeto").textContent = (s.convoy.origin || "") + " → " + (s.convoy.destination || "")
+    resumo(s)
+    rotas.clearLayers(); motos.clearLayers()
+    var rota = (s.route && s.route.routeCoordinates) || [], pontos = rota.slice()
+    if (rota.length > 1) L.polyline(rota, { color: "#c84632", weight: 5, opacity: .75, dashArray: "10 10" }).addTo(rotas)
+    var porMoto = {}
+    ;(s.traveled || []).forEach(function (p) { (porMoto[p.publicId] = porMoto[p.publicId] || []).push([p.latitude, p.longitude]); pontos.push([p.latitude, p.longitude]) })
+    Object.keys(porMoto).forEach(function (k) { if (porMoto[k].length > 1) L.polyline(porMoto[k], { color: "#24343b", weight: 5, opacity: .9 }).addTo(rotas) })
+    ;(s.positions || []).forEach(function (p) {
+      var aviso = p.signalType ? avisos[p.signalType] : null
+      var parado = s.serverTime - p.updatedAt > M.AO_VIVO_MS
+      var nome = p.riderName && p.riderName !== "Motociclista MANO" ? '<span class="nome">' + M.escapar(p.riderName) + "</span>" : ""
+      var icone = L.divIcon({ className: "", html: '<span class="moto' + (parado ? " cinza" : "") + '"><img src="/mano-rider.svg" alt="">' + (aviso ? "<b>" + aviso.s + "</b>" : "") + "</span>" + nome, iconSize: [48, 48], iconAnchor: [24, 24] })
+      L.marker([p.latitude, p.longitude], { icon: icone }).addTo(motos)
+        .bindTooltip(M.escapar(p.riderName + (aviso ? " · " + aviso.t : "") + (parado ? " · sem sinal desde " + M.hora(p.updatedAt) : "")), { permanent: parado, direction: "top", offset: [0, -24] })
+      pontos.push([p.latitude, p.longitude])
+    })
+    ;(s.signals || []).forEach(function (g) {
+      var a = avisos[g.signalType]; if (!a) return
+      L.marker([g.latitude, g.longitude], { icon: L.divIcon({ className: "", html: '<span class="moto"><b>' + a.s + "</b></span>", iconSize: [40, 40], iconAnchor: [20, 20] }) }).addTo(motos)
+        .bindTooltip(M.escapar(g.riderName + " · " + a.t + " · " + M.hora(g.createdAt)))
+      pontos.push([g.latitude, g.longitude])
+    })
+    var recente = (s.signals || [])[0]
+    if (recente && avisos[recente.signalType]) { $("alerta").hidden = false; $("alerta").className = "caixa alerta" + (recente.signalType === "stop" ? " parar" : ""); $("alerta-nome").textContent = recente.riderName; $("alerta-texto").textContent = avisos[recente.signalType].t + "." } else $("alerta").hidden = true
+    if (!enquadrou && pontos.length > 1) { mapa.fitBounds(L.latLngBounds(pontos), { padding: [45, 45] }); enquadrou = true }
+    else if (!enquadrou && pontos.length === 1) { mapa.setView(pontos[0], 14); enquadrou = true }
+  }
+
+  M.acompanhar("comboio-publico",
+    function (s) { conectado = true; desenhar(s) },
+    function (msg, jaRecebeu) { conectado = false; if (ultimo) resumo(ultimo); if (!jaRecebeu) { $("titulo").textContent = "Reconectando…"; $("detalhe").textContent = msg + " O mapa continuará tentando." } },
+    function (msg) { $("selo").textContent = "✓ ENCERRADO"; $("selo").className = "selo off"; $("titulo").textContent = "Acompanhamento encerrado"; $("detalhe").textContent = msg; rotas.clearLayers(); motos.clearLayers() })
+})()
+</script>
+</body>
+</html>

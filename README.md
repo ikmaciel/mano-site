@@ -11,3 +11,4 @@ As páginas são geradas a partir de `shared/mano-legal.ts` do app (mesmo texto 
 
 ## Páginas escritas à mão
 - `comboio/entrar/`: página do link de convite do comboio. Abre o MANO (`mano://` ou `mano-testes://` quando há `&app=testes`) e, sem o app, orienta a instalar e tocar no link de novo. O gerador não mexe nela.
+- `acompanhar/` (comboio) e `acompanhar/viagem/` (viagem solo e alerta de queda): acompanhamento ao vivo para quem está em casa. Leem o código depois do `#` e consultam as funções públicas do Supabase (`comboio-publico`, `viagem-publica`). Com `?ambiente=testes`, usam o HML.
