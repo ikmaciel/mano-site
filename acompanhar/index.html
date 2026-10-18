@@ -80,7 +80,7 @@
   M.acompanhar("comboio-publico",
     function (s) { conectado = true; desenhar(s) },
     function (msg, jaRecebeu) { conectado = false; if (ultimo) resumo(ultimo); if (!jaRecebeu) { $("titulo").textContent = "Reconectando…"; $("detalhe").textContent = msg + " O mapa continuará tentando." } },
-    function (msg) { $("selo").textContent = "✓ ENCERRADO"; $("selo").className = "selo off"; $("titulo").textContent = "Acompanhamento encerrado"; $("detalhe").textContent = msg; rotas.clearLayers(); motos.clearLayers() })
+    function (msg) { $("selo").textContent = "✓ ENCERRADO"; $("selo").className = "selo off"; $("titulo").textContent = "Acompanhamento encerrado"; $("trajeto").textContent = "Link encerrado"; $("detalhe").textContent = msg; rotas.clearLayers(); motos.clearLayers() })
 })()
 </script>
 </body>

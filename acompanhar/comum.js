@@ -36,7 +36,9 @@
     if (!token) { aoFalhar("Este link de acompanhamento está incompleto.", false); return }
     var recebeu = false, timer = 0
     function buscar() {
-      fetch(amb.url + "/functions/v1/" + funcao, { method: "POST", cache: "no-store", headers: { "content-type": "application/json", apikey: amb.chave }, body: JSON.stringify({ action: "snapshot", shareToken: token }) })
+      // MP-04 (roteiro de 17/10/2026): sem limite de tempo, um pedido preso deixava a página em "Carregando" para sempre.
+      var ctrl = window.AbortController ? new AbortController() : null, limite = ctrl ? setTimeout(function () { ctrl.abort() }, 10000) : 0
+      fetch(amb.url + "/functions/v1/" + funcao, { method: "POST", cache: "no-store", signal: ctrl ? ctrl.signal : undefined, headers: { "content-type": "application/json", apikey: amb.chave }, body: JSON.stringify({ action: "snapshot", shareToken: token }) })
         .then(function (r) { return r.json().catch(function () { return {} }).then(function (d) { return { r: r, d: d } }) })
         .then(function (x) {
           if (x.r.status === 404 || x.r.status === 410) { clearInterval(timer); aoEncerrar(x.d.error || "Este acompanhamento terminou."); return }
@@ -45,7 +47,8 @@
           if (x.d.status === "ended") clearInterval(timer)
           aoReceber(x.d)
         })
-        .catch(function (e) { aoFalhar(e && e.message ? e.message : "Acompanhamento indisponível.", recebeu) })
+        .catch(function (e) { aoFalhar(e && e.name === "AbortError" ? "O servidor demorou a responder." : e && e.message ? e.message : "Acompanhamento indisponível.", recebeu) })
+        .then(function () { clearTimeout(limite) })
     }
     timer = setInterval(buscar, 8000); buscar()
   }
