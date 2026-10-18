@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>MANO — Conta confirmada</title>
+<link rel="icon" href="/mano.png">
+<link rel="stylesheet" href="/estilo.css">
+</head>
+<body>
+<main>
+<header class="top"><img src="/mano.png" alt="Brasão do MANO"><div><strong>MANO</strong><span>Viaje sozinho. Nunca desacompanhado.</span></div></header>
+<h1 id="titulo">Conta confirmada</h1>
+<p id="texto">Seu e-mail foi confirmado. Volte ao MANO e entre com o seu e-mail e a sua senha.</p>
+<a class="action" id="abrir" href="mano://">Abrir o MANO</a>
+<p id="dica">Se o botão não abrir o app, abra o MANO pelo ícone do celular.</p>
+</main>
+<script>
+// U-T2 (roteiro de 17/10/2026): o link de confirmação do cadastro levava ao site antigo. O Supabase devolve
+// a sessão ou o erro depois do "#"; esta página não usa a sessão e apaga o "#" do endereço.
+(function () {
+  var dados = new URLSearchParams(location.hash.slice(1))
+  var testes = new URLSearchParams(location.search).get("ambiente") === "testes"
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search)
+  document.getElementById("abrir").href = testes ? "mano-testes://" : "mano://"
+  if (dados.get("error")) {
+    document.getElementById("titulo").textContent = "Link vencido ou já usado"
+    document.getElementById("texto").textContent = dados.get("error_code") === "otp_expired"
+      ? "Este link de confirmação venceu. No MANO, toque em Criar conta com o mesmo e-mail para receber outro link."
+      : "Não foi possível confirmar com este link. Se você já confirmou, basta entrar no MANO com o seu e-mail e a sua senha."
+  }
+})()
+</script>
+</body>
+</html>
