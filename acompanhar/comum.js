@@ -35,16 +35,21 @@
     var amb = new URLSearchParams(location.search).get("ambiente") === "testes" ? ambientes.testes : ambientes.producao
     if (!token) { aoFalhar("Este link de acompanhamento está incompleto.", false); return }
     var recebeu = false, timer = 0
+    // 19/10/2026: a rota (até ~1,8 MB) vem só na primeira vez ou quando muda; depois o servidor responde "igual".
+    var rotaVersao = null, rotaGuardada = null
     function buscar() {
       // MP-04 (roteiro de 17/10/2026): sem limite de tempo, um pedido preso deixava a página em "Carregando" para sempre.
       var ctrl = window.AbortController ? new AbortController() : null, limite = ctrl ? setTimeout(function () { ctrl.abort() }, 10000) : 0
-      fetch(amb.url + "/functions/v1/" + funcao, { method: "POST", cache: "no-store", signal: ctrl ? ctrl.signal : undefined, headers: { "content-type": "application/json", apikey: amb.chave }, body: JSON.stringify({ action: "snapshot", shareToken: token }) })
+      fetch(amb.url + "/functions/v1/" + funcao, { method: "POST", cache: "no-store", signal: ctrl ? ctrl.signal : undefined, headers: { "content-type": "application/json", apikey: amb.chave }, body: JSON.stringify({ action: "snapshot", shareToken: token, routeVersion: rotaVersao }) })
         .then(function (r) { return r.json().catch(function () { return {} }).then(function (d) { return { r: r, d: d } }) })
         .then(function (x) {
           if (x.r.status === 404 || x.r.status === 410) { clearInterval(timer); aoEncerrar(x.d.error || "Este acompanhamento terminou."); return }
           if (!x.r.ok) throw new Error(x.d.error || "Sem conexão com o servidor agora.")
           recebeu = true
           if (x.d.status === "ended") clearInterval(timer)
+          if (x.d.routeUnchanged && rotaGuardada) { x.d.route = rotaGuardada.route; x.d.routeCoordinates = rotaGuardada.routeCoordinates }
+          else if (x.d.routeUnchanged) rotaVersao = null
+          else { rotaVersao = x.d.routeVersion || null; rotaGuardada = { route: x.d.route, routeCoordinates: x.d.routeCoordinates } }
           aoReceber(x.d)
         })
         .catch(function (e) { aoFalhar(e && e.name === "AbortError" ? "O servidor demorou a responder." : e && e.message ? e.message : "Acompanhamento indisponível.", recebeu) })
