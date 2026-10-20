@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MANO — Comboio ao vivo</title>
 <meta name="robots" content="noindex">
-<meta name="referrer" content="no-referrer">
+<!-- O código do link fica depois do "#" e nunca sai do navegador; o servidor de mapas do OpenStreetMap exige saber o site (sem isso, 403). -->
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="icon" href="/mano.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="/acompanhar/comum.css">
@@ -59,9 +60,10 @@
       var aviso = p.signalType ? avisos[p.signalType] : null
       var parado = s.serverTime - p.updatedAt > M.AO_VIVO_MS
       var nome = p.riderName && p.riderName !== "Motociclista MANO" ? '<span class="nome">' + M.escapar(p.riderName) + "</span>" : ""
-      var icone = L.divIcon({ className: "", html: '<span class="moto' + (parado ? " cinza" : "") + '"><img src="/mano-rider.svg" alt="">' + (aviso ? "<b>" + aviso.s + "</b>" : "") + "</span>" + nome, iconSize: [48, 48], iconAnchor: [24, 24] })
+      var anonimo = !p.riderName || p.riderName === "Motociclista MANO"
+      var icone = M.moto(anonimo ? "gray" : "green", { parado: parado, aviso: aviso ? aviso.s : "", nome: nome })
       L.marker([p.latitude, p.longitude], { icon: icone }).addTo(motos)
-        .bindTooltip(M.escapar(p.riderName + (aviso ? " · " + aviso.t : "") + (parado ? " · sem sinal desde " + M.hora(p.updatedAt) : "")), { permanent: parado, direction: "top", offset: [0, -24] })
+        .bindTooltip(M.escapar(p.riderName + (aviso ? " · " + aviso.t : "") + (parado ? " · sem sinal desde " + M.hora(p.updatedAt) : "")), { permanent: parado, direction: "top", offset: [0, -18] })
       pontos.push([p.latitude, p.longitude])
     })
     ;(s.signals || []).forEach(function (g) {

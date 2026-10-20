@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MANO — Viagem ao vivo</title>
 <meta name="robots" content="noindex">
-<meta name="referrer" content="no-referrer">
+<!-- O código do link fica depois do "#" e nunca sai do navegador; o servidor de mapas do OpenStreetMap exige saber o site (sem isso, 403). -->
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="icon" href="/mano.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="/acompanhar/comum.css">
@@ -51,15 +52,15 @@
     var outros = (s.convoy && s.convoy.riders) || []
     outros.forEach(function (r) {
       var parado = s.serverTime - r.updatedAt > M.AO_VIVO_MS
-      L.circleMarker([r.latitude, r.longitude], { radius: 10, color: "#fff", weight: 3, fillColor: parado ? "#8a8a8a" : "#c84632", fillOpacity: 1 }).addTo(camada)
+      L.marker([r.latitude, r.longitude], { icon: M.moto(r.riderName === "Motociclista MANO" ? "gray" : "green", { parado: parado }) }).addTo(camada)
         .bindTooltip(M.escapar(parado ? r.riderName + " · sem sinal desde " + M.hora(r.updatedAt) : r.riderName), { direction: "top" })
     })
     if (s.convoy) { $("comboio").hidden = false; $("comboio").textContent = "Comboio " + s.convoy.name + ": " + (outros.length + 1) + " motociclista" + (outros.length ? "s" : "") + " no mapa" + (s.convoy.pendingInvites ? " · " + s.convoy.pendingInvites + " convidado(s) ainda não confirmaram" : "") + "." }
     var p = s.position
     if (p) {
-      var icone = L.divIcon({ className: "", html: '<span class="moto' + (st.aoVivo ? "" : " cinza") + '"><img src="/mano-rider.svg" alt=""></span>', iconSize: [48, 48], iconAnchor: [24, 24] })
+      var icone = M.moto("red", { parado: !st.aoVivo, rumo: p.heading })
       L.marker([p.latitude, p.longitude], { icon: icone }).addTo(camada)
-        .bindTooltip(M.escapar(st.aoVivo ? s.trip.riderName : s.trip.riderName + " · último sinal " + M.hora(p.updatedAt)), { permanent: !st.aoVivo, direction: "top", offset: [0, -24] })
+        .bindTooltip(M.escapar(st.aoVivo ? s.trip.riderName : s.trip.riderName + " · último sinal " + M.hora(p.updatedAt)), { permanent: !st.aoVivo, direction: "top", offset: [0, -18] })
       pontos.push([p.latitude, p.longitude])
     }
     mapa.invalidateSize()
