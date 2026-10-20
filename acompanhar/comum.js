@@ -58,9 +58,34 @@
     timer = setInterval(buscar, 8000); buscar()
   }
 
+  // Decisão do proprietário (20/10/2026): mapa do OpenFreeMap, o mesmo do app. Se ele não carregar
+  // (servidor fora, navegador sem WebGL ou biblioteca bloqueada), cai no mapa do OpenStreetMap.
+  var OPENFREEMAP = "https://tiles.openfreemap.org/styles/liberty"
+  function reserva(mapa) {
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(mapa)
+  }
+  function temWebGL() {
+    try { var c = document.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl")) } catch (e) { return false }
+  }
+  function fundoDoMapa(mapa) {
+    if (!L.maplibreGL || !window.maplibregl || !temWebGL()) return reserva(mapa)
+    var trocou = false, carregou = false
+    var vetor = L.maplibreGL({ style: OPENFREEMAP, attribution: '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © OpenStreetMap' }).addTo(mapa)
+    var paraReserva = function () {
+      if (trocou || carregou) return
+      trocou = true
+      mapa.removeLayer(vetor)
+      reserva(mapa)
+    }
+    var gl = vetor.getMaplibreMap()
+    gl.once("load", function () { carregou = true })
+    gl.on("error", paraReserva)
+    setTimeout(paraReserva, 10000)
+  }
+
   function novoMapa(no) {
     var mapa = L.map(no).setView([-15.8, -47.9], 5)
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(mapa)
+    fundoDoMapa(mapa)
     // O mapa nasce antes de o espaço dele ter o tamanho final; sem recalcular, linhas e enquadramento somem.
     var ajustar = function () { mapa.invalidateSize() }
     setTimeout(ajustar, 100)
