@@ -1,15 +1,16 @@
 :root{--bg:#132229;--card:#21343b;--line:#4a5e65;--fg:#fff;--muted:#c3cdce;--accent:#e09a82;--ok-bg:#284934;--ok-fg:#c9f1d3;--off-bg:#553a27;--off-fg:#ffe1b4}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{min-height:100dvh;display:grid;grid-template-rows:auto minmax(340px,1fr) auto auto auto;gap:12px;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
-main>*{width:min(1120px,100%);margin:0 auto}
+/* Sessão 4 (19/10/2026): sem minmax(0,1fr) a coluna crescia com o título longo e a página rolava para o lado. */
+main{min-height:100dvh;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(340px,1fr) auto auto auto;gap:12px;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
+main>*{width:min(1120px,100%);min-width:0;margin:0 auto}
 header{display:flex;align-items:center;gap:12px}
 header img{width:52px;height:52px}
 header>div{min-width:0;flex:1}
 header small{color:var(--accent);font-size:12px;font-weight:900;letter-spacing:1.2px}
 header h1{margin:2px 0;font:700 clamp(20px,5vw,30px)/1.15 Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 header p{margin:0;color:var(--muted);font-size:14px}
-.selo{border:1px solid #4f715b;border-radius:20px;background:var(--ok-bg);color:var(--ok-fg);padding:8px 12px;font-size:13px;font-weight:900;white-space:nowrap}
+.selo{flex:none;border:1px solid #4f715b;border-radius:20px;background:var(--ok-bg);color:var(--ok-fg);padding:8px 12px;font-size:13px;font-weight:900;white-space:nowrap}
 .selo.off{border-color:#7f5b38;background:var(--off-bg);color:var(--off-fg)}
 #mapa{height:100%;min-height:340px;border:1px solid #52636a;border-radius:14px;overflow:hidden;background:#d7dedc}
 .caixa{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:14px 16px}
