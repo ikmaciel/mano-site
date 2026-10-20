@@ -78,7 +78,9 @@
       reserva(mapa)
     }
     var gl = vetor.getMaplibreMap()
-    gl.once("load", function () { carregou = true })
+    // Vale o estilo ter chegado, não o mapa ter sido desenhado: com a aba em segundo plano o navegador
+    // pausa o desenho e o "load" não vem (caía na reserva sem precisar, conferido em 20/10/2026).
+    gl.once("style.load", function () { carregou = true })
     gl.on("error", paraReserva)
     setTimeout(paraReserva, 10000)
   }
