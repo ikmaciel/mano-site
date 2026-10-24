@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MANO — Painel</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="icon" href="/mano.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
+<link rel="stylesheet" href="/painel-mano/painel.css?v=20261024">
+</head>
+<body>
+<!-- Área de superadministração (decisões do proprietário, 23/10/2026). Sem link no site; o acesso é conferido no
+     servidor a cada consulta (platform_admins). ?ambiente=testes usa o servidor de homologação. -->
+<header class="topo">
+  <img src="/mano.png" alt="MANO">
+  <div><strong>Painel MANO</strong><span id="ambiente">Produção</span></div>
+  <span class="quem" id="quem"></span>
+  <button class="link" id="sair" hidden>Sair</button>
+</header>
+
+<section id="entrar" class="caixa estreita" hidden>
+  <h1>Entrar</h1>
+  <p class="fraco">Só para superadministração do MANO. Use a mesma conta do app.</p>
+  <button class="botao" id="google">Continuar com Google</button>
+  <form id="form-senha">
+    <label>E-mail<input type="email" id="email" autocomplete="username" required></label>
+    <label>Senha<input type="password" id="senha" autocomplete="current-password" required></label>
+    <button class="botao claro" type="submit">Entrar com e-mail</button>
+  </form>
+  <p class="erro" id="erro-entrar" role="alert"></p>
+</section>
+
+<section id="sem-acesso" class="caixa estreita" hidden>
+  <h1>Sem acesso</h1>
+  <p>Esta conta não é de superadministração. Entre com outra conta.</p>
+</section>
+
+<main id="painel" hidden>
+  <nav class="abas" role="tablist">
+    <button role="tab" data-aba="adesao" aria-selected="true">Adesão</button>
+    <button role="tab" data-aba="grupos">Grupos</button>
+    <button role="tab" data-aba="usuarios">Usuários</button>
+    <button role="tab" data-aba="denuncias">Denúncias</button>
+  </nav>
+
+  <section data-painel="adesao">
+    <div class="numeros" id="numeros"></div>
+    <div class="caixa"><h2>Onde estão</h2><p class="fraco">Contas por região de ~11 km, pela partida da última viagem. Nunca mostra a posição de uma pessoa.</p><div id="mapa"></div></div>
+    <div class="caixa"><h2>Novas contas por dia</h2><div id="cadastros" class="barras"></div></div>
+  </section>
+
+  <section data-painel="grupos" hidden>
+    <div class="caixa">
+      <div class="linha"><input id="busca-grupo" placeholder="Nome ou cidade do grupo"><select id="filtro-grupo"><option value="all">Todos</option><option value="approved">Ativos</option><option value="suspended">Pausados</option><option value="motoclube">Motoclubes</option><option value="motogrupo">Motogrupos</option><option value="motocoletivo">Motocoletivos</option></select></div>
+      <div id="lista-grupos"></div>
+    </div>
+    <div class="caixa"><h2>Pedidos de novos grupos</h2><div id="pedidos-grupos"></div></div>
+    <div class="caixa"><h2>Pedidos de brasão</h2><div id="pedidos-brasao"></div></div>
+  </section>
+
+  <section data-painel="usuarios" hidden>
+    <div class="caixa">
+      <input id="busca-usuario" placeholder="Nome, nome de estrada, e-mail ou cidade">
+      <p class="fraco" id="total-usuarios"></p>
+      <div id="lista-usuarios"></div>
+      <button class="botao claro" id="mais-usuarios" hidden>Mostrar mais</button>
+    </div>
+    <div class="caixa"><h2>Superadministração</h2><div id="lista-admins"></div>
+      <form id="form-admin" class="linha"><input type="email" id="email-admin" placeholder="E-mail da conta" required><button class="botao">Dar acesso</button></form>
+    </div>
+  </section>
+
+  <section data-painel="denuncias" hidden>
+    <div class="caixa">
+      <select id="filtro-denuncia"><option value="open">Abertas</option><option value="reviewed">Revisadas</option><option value="dismissed">Descartadas</option><option value="all">Todas</option></select>
+      <div id="lista-denuncias"></div>
+    </div>
+    <div class="caixa"><h2>Eventos</h2><div id="lista-eventos"></div></div>
+  </section>
+</main>
+
+<dialog id="janela"><form method="dialog" id="janela-form"><h2 id="janela-titulo"></h2><div id="janela-corpo"></div><label>Motivo (fica na auditoria)<input id="janela-motivo" required minlength="3"></label><p class="erro" id="janela-erro" role="alert"></p><div class="linha fim"><button class="botao claro" value="cancelar" formnovalidate>Cancelar</button><button class="botao" id="janela-ok" value="ok">Salvar</button></div></form></dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
+<script src="/painel-mano/painel.js?v=20261024"></script>
+</body>
+</html>
