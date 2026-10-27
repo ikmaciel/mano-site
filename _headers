@@ -8,3 +8,7 @@
   Content-Type: application/x-protobuf
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
+
+# Consentimento do OAuth: nunca guardar em cache.
+/oauth/*
+  Cache-Control: no-store

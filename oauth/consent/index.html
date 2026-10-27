@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MANO — Conectar uma IA</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="/mano.png">
+<link rel="stylesheet" href="/oauth/consent/consent.css?v=20261027">
+</head>
+<body>
+<!-- Tela de consentimento do OAuth do Supabase (MCP do MANO, decisões de 27/10/2026). O Supabase manda a pessoa
+     para cá com ?authorization_id=. /oauth/testes (reescrito em _redirects) e ?ambiente=testes usam o HML. -->
+<header class="topo">
+  <img src="/mano.png" alt="MANO">
+  <div><strong>MANO</strong><span id="ambiente"></span></div>
+</header>
+
+<main>
+  <section id="carregando" class="caixa"><p class="fraco">Carregando…</p></section>
+
+  <section id="entrar" class="caixa" hidden>
+    <h1>Entre na sua conta MANO</h1>
+    <p class="fraco">Uma IA pediu para se conectar ao seu MANO. Entre com a mesma conta do app para decidir.</p>
+    <button class="botao" id="google">Continuar com Google</button>
+    <form id="form-senha">
+      <label>E-mail<input type="email" id="email" autocomplete="username" required></label>
+      <label>Senha<input type="password" id="senha" autocomplete="current-password" required></label>
+      <button class="botao claro" type="submit">Entrar com e-mail</button>
+    </form>
+    <p class="erro" id="erro-entrar" role="alert"></p>
+  </section>
+
+  <section id="pedido" class="caixa" hidden>
+    <h1><span id="cliente"></span> quer acessar seu MANO</h1>
+    <p class="fraco">Conta: <b id="conta"></b> · <button class="link" id="trocar">Trocar de conta</button></p>
+    <p class="aviso">Só permita se foi você quem pediu agora, na sua IA. O nome acima é informado pelo próprio aplicativo; confira para onde ele vai voltar: <b id="destino"></b></p>
+
+    <h2>Ela vai poder</h2>
+    <ul>
+      <li>Ver seu nome de estrada, seu grupo e as motos da sua garagem (apelido, modelo e autonomia).</li>
+      <li>Calcular rotas e consultar postos, apoio, guincho 24h, camping e ocorrências no caminho.</li>
+      <li>Ver as rotas salvas e salvar novas rotas na sua conta.</li>
+    </ul>
+    <h2>Ela nunca vai poder</h2>
+    <ul>
+      <li>Ver seus telefones de emergência, sua ficha médica ou onde você está agora.</li>
+      <li>Convidar ou avisar outras pessoas sem você confirmar no app.</li>
+      <li>Mexer em mensalidade, pagamentos ou excluir sua conta.</li>
+    </ul>
+    <p class="fraco">Você pode tirar o acesso quando quiser.</p>
+
+    <div class="linha">
+      <button class="botao claro" id="negar">Negar</button>
+      <button class="botao" id="permitir">Permitir</button>
+    </div>
+    <p class="erro" id="erro-pedido" role="alert"></p>
+  </section>
+
+  <section id="falha" class="caixa" hidden>
+    <h1 id="falha-titulo">Pedido inválido</h1>
+    <p id="falha-texto"></p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3/dist/umd/supabase.min.js"></script>
+<script src="/oauth/consent/consent.js?v=20261027"></script>
+</body>
+</html>
