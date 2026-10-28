@@ -12,3 +12,6 @@
 # Consentimento do OAuth: nunca guardar em cache.
 /oauth/*
   Cache-Control: no-store
+
+/conta-confirmada/oauth/*
+  Cache-Control: no-store

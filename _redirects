@@ -4,5 +4,8 @@
 /baixar https://play.google.com/store/apps/details?id=com.manobrotherhood.app 302
 /baixar/ https://play.google.com/store/apps/details?id=com.manobrotherhood.app 302
 # Tela de consentimento do OAuth (MCP). /oauth/testes é o caminho configurado no HML; a página decide o ambiente pelo endereço.
+# Na produção o Supabase junta o Site URL (/conta-confirmada/, mantido pelos apps antigos) com /oauth/consent.
+/conta-confirmada/oauth/consent /oauth/consent/ 200
+/conta-confirmada/oauth/consent/ /oauth/consent/ 200
 /oauth/testes /oauth/consent/ 200
 /oauth/testes/ /oauth/consent/ 200
