@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MANO — Local enviado</title>
+<meta name="description" content="Um mano te mandou um local. Abra no MANO para ver no mapa e traçar a rota.">
+<meta name="robots" content="noindex">
+<!-- O local fica depois do "#" e nunca vai para o servidor do site; o servidor de mapas do OpenStreetMap exige saber o site (sem isso, 403). -->
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="icon" href="/mano.png">
+<link rel="stylesheet" href="/estilo.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
+<style>.secondary{color:var(--fg);background:transparent;border:1px solid var(--line)}[hidden]{display:none!important}
+#mapa{height:min(55vh,420px);min-height:260px;margin-top:16px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#d7dedc}
+.coordenadas{color:var(--muted);font-size:15px;margin:8px 0 0}.botoes{display:flex;flex-wrap:wrap;gap:0 12px}</style>
+</head>
+<body>
+<main>
+<header class="top"><img src="/mano.png" alt="Brasão do MANO"><div><strong>MANO</strong><span>Viaje sozinho. Nunca desacompanhado.</span></div></header>
+<div id="valido" hidden>
+<h1 id="nome">Local enviado pelo MANO</h1>
+<section id="mapa" aria-label="Mapa com o local"></section>
+<p class="coordenadas" id="coordenadas"></p>
+<div class="botoes">
+<a class="action" id="abrir" href="#">Abrir no MANO</a>
+<a class="action secondary" id="outro-app" href="#">Abrir no app de mapa do celular</a>
+</div>
+<p id="computador" hidden>Está no computador? Abra este link no celular para traçar a rota até aqui.</p>
+<section id="sem-app"><h2>Ainda não tem o MANO?</h2>
+<p id="instalar-texto">Instale o app e depois <strong>volte à conversa e toque de novo neste link</strong>. O MANO abre neste ponto, pronto para traçar a rota.</p>
+<a class="action secondary" id="loja" href="https://play.google.com/store/apps/details?id=com.manobrotherhood.app">Instalar pela Google Play</a>
+<p id="iphone" hidden>Por enquanto, o MANO está disponível só para Android.</p>
+</section>
+</div>
+<div id="invalido" hidden>
+<h1>Local enviado pelo MANO</h1>
+<p>Este link de local está incompleto. Peça a quem mandou para enviar de novo pelo MANO.</p>
+</div>
+<footer>Dúvidas: <a href="mailto:privacidade@manobrotherhood.com">privacidade@manobrotherhood.com</a></footer>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@maplibre/maplibre-gl-leaflet@0.0.22/leaflet-maplibre-gl.min.js"></script>
+<script src="/acompanhar/comum.js?v=20261020b"></script>
+<script>
+// Decisão 402 (31/10/2026): local enviado de um mano para outro. Coordenadas e nome vêm depois do "#" (o servidor do
+// site não recebe) e nada é lido do banco. Com o MANO, abre no ponto; sem ele, mostra o ponto no mapa (OpenFreeMap, o
+// mesmo do acompanhar), o botão para outro app de mapa e onde instalar.
+(function () {
+  var $ = function (id) { return document.getElementById(id) }
+  var params = new URLSearchParams(location.search)
+  var dados = new URLSearchParams(location.hash.slice(1))
+  var numero = /^[-+]?[0-9]{1,3}(\.[0-9]+)?$/
+  var lat = (dados.get("lat") || "").trim(), lng = (dados.get("lng") || "").trim()
+  var nome = (dados.get("nome") || "").replace(/\s+/g, " ").trim().slice(0, 80)
+  var la = Number(lat), lo = Number(lng)
+  if (!numero.test(lat) || !numero.test(lng) || Math.abs(la) > 90 || Math.abs(lo) > 180 || (la === 0 && lo === 0)) { $("invalido").hidden = false; return }
+  $("valido").hidden = false
+  if (nome) { $("nome").textContent = nome; document.title = "MANO — " + nome }
+  $("coordenadas").textContent = la.toFixed(5) + ", " + lo.toFixed(5)
+
+  // O APK de testes (MANO Testes) usa outro endereço e outro pacote.
+  var testes = params.get("app") === "testes"
+  var scheme = testes ? "mano-testes" : "mano"
+  var pkg = testes ? "com.manobrotherhood.app.test" : "com.manobrotherhood.app"
+  var android = /Android/i.test(navigator.userAgent)
+  var iphone = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+  var consulta = "lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng) + (nome ? "&nome=" + encodeURIComponent(nome) : "")
+  // No Android, o intent abre o app; se ele não estiver instalado, volta para esta página em vez de mostrar erro.
+  var fallback = location.origin + location.pathname + "?" + (testes ? "app=testes&" : "") + "sem-app=1" + location.hash
+  var link = android ? "intent://local?" + consulta + "#Intent;scheme=" + scheme + ";package=" + pkg + ";S.browser_fallback_url=" + encodeURIComponent(fallback) + ";end" : scheme + "://local?" + consulta
+  $("abrir").href = link
+  // Quem não tem o MANO escolhe outro app de mapa (geo: no Android, Mapas no iPhone).
+  $("outro-app").href = iphone ? "https://maps.apple.com/?ll=" + la + "," + lo + "&q=" + encodeURIComponent(nome || "Local") : "geo:" + la + "," + lo + "?q=" + la + "," + lo + (nome ? "(" + encodeURIComponent(nome) + ")" : "")
+  if (testes) {
+    $("loja").hidden = true
+    $("instalar-texto").textContent = "Instale o MANO Testes e depois volte à conversa e toque de novo neste link."
+  }
+  if (iphone) { $("abrir").hidden = true; $("loja").hidden = true; $("iphone").hidden = false }
+  else if (!android) { $("abrir").hidden = true; $("outro-app").hidden = true; $("computador").hidden = false }
+
+  var M = window.MANO
+  if (M && window.L) {
+    var mapa = M.novoMapa($("mapa"))
+    mapa.setView([la, lo], 15)
+    var ponto = L.circleMarker([la, lo], { radius: 11, color: "#ffffff", weight: 3, fillColor: "#a7181d", fillOpacity: 1 }).addTo(mapa)
+    if (nome) ponto.bindTooltip(M.escapar(nome), { permanent: true, direction: "top", offset: [0, -10] })
+  } else $("mapa").hidden = true
+
+  // Tenta abrir sozinho uma vez; se o app não existir, a página continua com o mapa e as instruções.
+  if (android && params.get("sem-app") !== "1") location.href = link
+})()
+</script>
+</body>
+</html>
