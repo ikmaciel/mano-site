@@ -305,7 +305,7 @@
     })
   }
 
-  // ---------- Adesivos (decisão 403) ----------
+  // ---------- Adesivos (decisão 404) ----------
   // Lugares com adesivo, do mais recente para o mais antigo, com quem colou cada um. Invalidar tira o adesivo da
   // parede e do ranking do app; o motivo fica na auditoria. Busca, filtro e páginas no servidor (decisão 313).
   var paginaAdesivos = 1
