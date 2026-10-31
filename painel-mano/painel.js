@@ -81,6 +81,7 @@
     if (aba === "grupos") { carregarGrupos(); carregarPedidos() }
     if (aba === "usuarios") { carregarUsuarios(true); carregarAdmins() }
     if (aba === "denuncias") { carregarDenuncias(); carregarEventos() }
+    if (aba === "adesivos") carregarAdesivos(true)
   }
 
   // ---------- Adesão ----------
@@ -302,6 +303,54 @@
     janela("Cancelar evento", "<p>Quem confirmou presença deixa de ver o evento como ativo.</p>", async function (motivo) {
       await rpc("mobile_platform_review_event", { target_event_id: Number(b.dataset.cancelar), target_decision: "canceled", target_reason: motivo }); carregarEventos()
     })
+  }
+
+  // ---------- Adesivos (decisão 403) ----------
+  // Lugares com adesivo, do mais recente para o mais antigo, com quem colou cada um. Invalidar tira o adesivo da
+  // parede e do ranking do app; o motivo fica na auditoria. Busca, filtro e páginas no servidor (decisão 313).
+  var paginaAdesivos = 1
+  var temporizadorAdesivo
+  var categorias = { posto: "Posto", oficina: "Oficina", borracharia: "Borracharia", pecas: "Peças", restaurante: "Restaurante", lanchonete: "Lanchonete", guincho: "Guincho", hospedagem: "Hotel / pousada", sede: "Sede", camping: "Camping" }
+  $("busca-adesivo").oninput = function () { clearTimeout(temporizadorAdesivo); temporizadorAdesivo = setTimeout(function () { carregarAdesivos(true) }, 300) }
+  $("filtro-adesivo").onchange = function () { carregarAdesivos(true) }
+  $("mais-adesivos").onclick = function () { carregarAdesivos(false) }
+  function linhaAdesivo(a) {
+    var invalidado = Boolean(a.invalidatedAt)
+    return '<div class="item"><div class="texto"><b>' + esc(a.memberName) + "</b>" + esc(a.email || "") + " · brasão " + esc(a.clubName) + " · " + data(a.createdAt, true) +
+      '<br><span class="fraco">' + (a.presenceMode === "nearby" ? "GPS a até 500 m" : "presença declarada") + " · " + num(a.memberPatches) + " adesivo(s) valendo desta pessoa no total</span>" +
+      (invalidado ? '<br><span class="selo alerta">invalidado</span><span class="fraco">' + data(a.invalidatedAt, true) + " por " + esc(a.invalidatedBy || "—") + ": " + esc(a.invalidationReason || "") + "</span>" : "") + "</div>" +
+      '<div class="acoes">' + (invalidado ? '<button class="botao claro" data-restaurar="' + a.id + '">Restaurar</button>' : '<button class="botao perigo" data-invalidar="' + a.id + '">Invalidar</button>') + "</div></div>"
+  }
+  async function carregarAdesivos(doZero) {
+    if (doZero) { paginaAdesivos = 1; $("lista-adesivos").innerHTML = "" } else paginaAdesivos++
+    try {
+      var r = await rpc("admin_web_place_patches", { p_query: $("busca-adesivo").value, p_filter: $("filtro-adesivo").value, p_page: paginaAdesivos, p_page_size: 30 })
+      var t = r.totals
+      $("numeros-adesivos").innerHTML = [
+        [t.patches, "adesivos valendo"], [t.places, "lugares adesivados"], [t.people, "pessoas que adesivaram"], [t.patches7, "novos em 7 dias"],
+        [t.patches30, "novos em 30 dias"], [t.rankedPlaces, "lugares no ranking (3 ou mais)"], [t.invalidated, "invalidados"],
+      ].map(function (c) { return '<div class="numero"><b>' + num(c[0]) + "</b><span>" + esc(c[1]) + "</span></div>" }).join("")
+      $("total-adesivos").textContent = num(r.total) + " lugar(es)"
+      $("lista-adesivos").insertAdjacentHTML("beforeend", r.items.map(function (l) {
+        var cidade = l.city && !/^próximo à estrada$/i.test(l.city) ? " · " + esc(l.city) : ""
+        var mapa = l.latitude != null ? ' · <a href="https://www.openstreetmap.org/?mlat=' + Number(l.latitude) + "&mlon=" + Number(l.longitude) + "#map=17/" + Number(l.latitude) + "/" + Number(l.longitude) + '" target="_blank" rel="noopener">ver no mapa</a>' : ""
+        return '<div class="item"><div class="texto"><b>' + esc(l.placeName) + "</b>" + esc(categorias[l.category] || "Local") + cidade + mapa +
+          '<br><span class="selo ' + (l.active >= 3 ? "ok" : "") + '">' + num(l.active) + " valendo</span>" + (l.invalidated ? '<span class="selo alerta">' + num(l.invalidated) + " invalidado(s)</span>" : "") +
+          (l.catalogActive ? "" : '<span class="selo alerta">fora do catálogo</span>') + '<span class="fraco">último em ' + data(l.lastAt, true) + "</span>" +
+          '<div class="adesivos">' + l.patches.map(linhaAdesivo).join("") + "</div></div></div>"
+      }).join("") || (doZero ? '<p class="fraco">Nenhum adesivo.</p>' : ""))
+      mostrar("mais-adesivos", paginaAdesivos * r.pageSize < r.total)
+    } catch (e) { falha("lista-adesivos", e) }
+  }
+  $("lista-adesivos").onclick = function (ev) {
+    var b = ev.target.closest("button"); if (!b) return
+    var invalidar = Boolean(b.dataset.invalidar), id = Number(b.dataset.invalidar || b.dataset.restaurar)
+    janela(invalidar ? "Invalidar adesivo" : "Restaurar adesivo",
+      invalidar ? "<p>O adesivo sai da parede do lugar e deixa de contar no ranking do app. A pessoa não consegue colar de novo o mesmo brasão ali.</p>" : "<p>O adesivo volta para a parede do lugar e para o ranking.</p>",
+      async function (motivo) {
+        await rpc("admin_web_review_place_patch", { p_patch_id: id, p_decision: invalidar ? "invalidate" : "restore", p_reason: motivo })
+        carregarAdesivos(true)
+      })
   }
 
   iniciar()

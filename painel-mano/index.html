@@ -8,7 +8,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="icon" href="/mano.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
-<link rel="stylesheet" href="/painel-mano/painel.css?v=20261024">
+<link rel="stylesheet" href="/painel-mano/painel.css?v=20261031">
 </head>
 <body>
 <!-- Área de superadministração (decisões do proprietário, 23/10/2026). Sem link no site; o acesso é conferido no
@@ -43,6 +43,7 @@
     <button role="tab" data-aba="grupos">Grupos</button>
     <button role="tab" data-aba="usuarios">Usuários</button>
     <button role="tab" data-aba="denuncias">Denúncias</button>
+    <button role="tab" data-aba="adesivos">Adesivos</button>
   </nav>
 
   <section data-painel="adesao">
@@ -79,12 +80,24 @@
     </div>
     <div class="caixa"><h2>Eventos</h2><div id="lista-eventos"></div></div>
   </section>
+
+  <section data-painel="adesivos" hidden>
+    <div class="numeros" id="numeros-adesivos"></div>
+    <div class="caixa">
+      <h2>Adesivos por lugar</h2>
+      <p class="fraco">Quem colou cada adesivo só aparece aqui. No app, o ranking mostra só o lugar e a contagem (decisão 403).</p>
+      <div class="linha"><input id="busca-adesivo" placeholder="Lugar, pessoa ou grupo"><select id="filtro-adesivo"><option value="all">Todos</option><option value="active">Com adesivo valendo</option><option value="invalidated">Com adesivo invalidado</option></select></div>
+      <p class="fraco" id="total-adesivos"></p>
+      <div id="lista-adesivos"></div>
+      <button class="botao claro" id="mais-adesivos" hidden>Mostrar mais</button>
+    </div>
+  </section>
 </main>
 
 <dialog id="janela"><form method="dialog" id="janela-form"><h2 id="janela-titulo"></h2><div id="janela-corpo"></div><label>Motivo (fica na auditoria)<input id="janela-motivo" required minlength="3"></label><p class="erro" id="janela-erro" role="alert"></p><div class="linha fim"><button class="botao claro" value="cancelar" formnovalidate>Cancelar</button><button class="botao" id="janela-ok" value="ok">Salvar</button></div></form></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
-<script src="/painel-mano/painel.js?v=20261024"></script>
+<script src="/painel-mano/painel.js?v=20261031"></script>
 </body>
 </html>
