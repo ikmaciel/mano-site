@@ -305,7 +305,7 @@
     })
   }
 
-  // ---------- Adesivos (decisão 404) ----------
+  // ---------- Adesivos (decisões 404 e 406) ----------
   // Lugares com adesivo, do mais recente para o mais antigo, com quem colou cada um. Invalidar tira o adesivo da
   // parede e do ranking do app; o motivo fica na auditoria. Busca, filtro e páginas no servidor (decisão 313).
   var paginaAdesivos = 1
@@ -328,14 +328,14 @@
       var t = r.totals
       $("numeros-adesivos").innerHTML = [
         [t.patches, "adesivos valendo"], [t.places, "lugares adesivados"], [t.people, "pessoas que adesivaram"], [t.patches7, "novos em 7 dias"],
-        [t.patches30, "novos em 30 dias"], [t.rankedPlaces, "lugares no ranking (3 ou mais)"], [t.invalidated, "invalidados"],
+        [t.patches30, "novos em 30 dias"], [t.clubs, "motoclubes que adesivaram"], [t.invalidated, "invalidados"],
       ].map(function (c) { return '<div class="numero"><b>' + num(c[0]) + "</b><span>" + esc(c[1]) + "</span></div>" }).join("")
       $("total-adesivos").textContent = num(r.total) + " lugar(es)"
       $("lista-adesivos").insertAdjacentHTML("beforeend", r.items.map(function (l) {
         var cidade = l.city && !/^próximo à estrada$/i.test(l.city) ? " · " + esc(l.city) : ""
         var mapa = l.latitude != null ? ' · <a href="https://www.openstreetmap.org/?mlat=' + Number(l.latitude) + "&mlon=" + Number(l.longitude) + "#map=17/" + Number(l.latitude) + "/" + Number(l.longitude) + '" target="_blank" rel="noopener">ver no mapa</a>' : ""
         return '<div class="item"><div class="texto"><b>' + esc(l.placeName) + "</b>" + esc(categorias[l.category] || "Local") + cidade + mapa +
-          '<br><span class="selo ' + (l.active >= 3 ? "ok" : "") + '">' + num(l.active) + " valendo</span>" + (l.invalidated ? '<span class="selo alerta">' + num(l.invalidated) + " invalidado(s)</span>" : "") +
+          '<br><span class="selo ' + (l.active > 0 ? "ok" : "") + '">' + num(l.active) + " valendo</span>" + (l.invalidated ? '<span class="selo alerta">' + num(l.invalidated) + " invalidado(s)</span>" : "") +
           (l.catalogActive ? "" : '<span class="selo alerta">fora do catálogo</span>') + '<span class="fraco">último em ' + data(l.lastAt, true) + "</span>" +
           '<div class="adesivos">' + l.patches.map(linhaAdesivo).join("") + "</div></div></div>"
       }).join("") || (doZero ? '<p class="fraco">Nenhum adesivo.</p>' : ""))
