@@ -30,11 +30,14 @@
   function escapar(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] }) }
 
   // Busca o retrato a cada 8 s. 404/410 encerram o link; outras falhas só tentam de novo.
+  // Viagem 42 do Caio (31/10/2026): 691 leituras. Com a aba escondida não busca; ao voltar, busca na hora.
   function acompanhar(funcao, aoReceber, aoFalhar, aoEncerrar) {
     var token = location.hash.slice(1)
     var amb = new URLSearchParams(location.search).get("ambiente") === "testes" ? ambientes.testes : ambientes.producao
     if (!token) { aoFalhar("Este link de acompanhamento está incompleto.", false); return }
-    var recebeu = false, timer = 0
+    var recebeu = false, timer = 0, encerrado = false
+    function parar() { clearInterval(timer); timer = 0 }
+    function iniciar() { if (!timer && !encerrado) { timer = setInterval(buscar, 8000); buscar() } }
     // 19/10/2026: a rota (até ~1,8 MB) vem só na primeira vez ou quando muda; depois o servidor responde "igual".
     var rotaVersao = null, rotaGuardada = null
     function buscar() {
@@ -43,10 +46,10 @@
       fetch(amb.url + "/functions/v1/" + funcao, { method: "POST", cache: "no-store", signal: ctrl ? ctrl.signal : undefined, headers: { "content-type": "application/json", apikey: amb.chave }, body: JSON.stringify({ action: "snapshot", shareToken: token, routeVersion: rotaVersao }) })
         .then(function (r) { return r.json().catch(function () { return {} }).then(function (d) { return { r: r, d: d } }) })
         .then(function (x) {
-          if (x.r.status === 404 || x.r.status === 410) { clearInterval(timer); aoEncerrar(x.d.error || "Este acompanhamento terminou."); return }
+          if (x.r.status === 404 || x.r.status === 410) { encerrado = true; parar(); aoEncerrar(x.d.error || "Este acompanhamento terminou."); return }
           if (!x.r.ok) throw new Error(x.d.error || "Sem conexão com o servidor agora.")
           recebeu = true
-          if (x.d.status === "ended") clearInterval(timer)
+          if (x.d.status === "ended") { encerrado = true; parar() }
           if (x.d.routeUnchanged && rotaGuardada) { x.d.route = rotaGuardada.route; x.d.routeCoordinates = rotaGuardada.routeCoordinates }
           else if (x.d.routeUnchanged) rotaVersao = null
           else { rotaVersao = x.d.routeVersion || null; rotaGuardada = { route: x.d.route, routeCoordinates: x.d.routeCoordinates } }
@@ -55,7 +58,9 @@
         .catch(function (e) { aoFalhar(e && e.name === "AbortError" ? "O servidor demorou a responder." : e && e.message ? e.message : "Acompanhamento indisponível.", recebeu) })
         .then(function () { clearTimeout(limite) })
     }
-    timer = setInterval(buscar, 8000); buscar()
+    document.addEventListener("visibilitychange", function () { if (document.hidden) parar(); else iniciar() })
+    // Aberto em outra aba (escondido), busca uma vez e espera a pessoa olhar.
+    if (document.hidden) buscar(); else iniciar()
   }
 
   // Decisão do proprietário (20/10/2026): mapa do OpenFreeMap, o mesmo do app. Se ele não carregar
