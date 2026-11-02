@@ -27,6 +27,9 @@
 (function () {
   var M = window.MANO, $ = function (id) { return document.getElementById(id) }
   var mapa = M.novoMapa($("mapa")), camada = L.layerGroup().addTo(mapa), enquadrou = false, ultimo = null, conectado = true
+  // Decisão 413 (02/11/2026): Parada na viagem, avisada pelo motociclista no app.
+  var PARADAS = { fuel: "⛽ Abastecendo", food: "🍽 Comendo", rest: "☕ Descansando" }
+  function parada(s) { return s.status === "paused" && s.pause ? PARADAS[s.pause.kind] || null : null }
 
   function mostrarSinal(s) {
     var p = s.position
@@ -34,6 +37,13 @@
     $("selo").textContent = st.selo; $("selo").className = "selo" + (st.aoVivo ? "" : " off")
     $("titulo").textContent = s.status === "suspended" ? "Compartilhamento pausado" : s.status === "ended" ? "Viagem encerrada" : st.aoVivo ? "Posição atual compartilhada" : p ? "Último local conhecido" : "Aguardando a primeira posição"
     $("detalhe").textContent = s.status === "suspended" ? "O MANO perguntou se a viagem continua e não teve resposta. A localização volta a aparecer aqui quando o motociclista confirmar." : st.texto + (!conectado ? " Sem conexão com o servidor agora; o mapa tenta de novo sozinho." : "")
+    var motivo = parada(s)
+    if (motivo) {
+      var minutos = s.pause.since ? Math.max(0, Math.round((s.serverTime - s.pause.since) / 60000)) : null
+      $("selo").textContent = "■ PARADO"; $("selo").className = "selo off"
+      $("titulo").textContent = motivo
+      $("detalhe").textContent = "Parada avisada pelo motociclista" + (s.pause.since ? " às " + M.hora(s.pause.since) + (minutos ? " (há " + minutos + " min)" : "") : "") + ". A viagem segue sozinha quando ele voltar a andar." + (!conectado ? " Sem conexão com o servidor agora; o mapa tenta de novo sozinho." : "")
+    }
     return st
   }
 
@@ -63,7 +73,7 @@
     if (p) {
       var icone = M.moto("red", { parado: !st.aoVivo, rumo: p.heading })
       L.marker([p.latitude, p.longitude], { icon: icone }).addTo(camada)
-        .bindTooltip(M.escapar(st.aoVivo ? s.trip.riderName : s.trip.riderName + " · último sinal " + M.hora(p.updatedAt)), { permanent: !st.aoVivo, direction: "top", offset: [0, -18] })
+        .bindTooltip(M.escapar(parada(s) ? s.trip.riderName + " · " + parada(s) : st.aoVivo ? s.trip.riderName : s.trip.riderName + " · último sinal " + M.hora(p.updatedAt)), { permanent: !st.aoVivo || Boolean(parada(s)), direction: "top", offset: [0, -18] })
       pontos.push([p.latitude, p.longitude])
     }
     mapa.invalidateSize()
