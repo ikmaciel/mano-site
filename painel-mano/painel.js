@@ -71,10 +71,12 @@
   sb.auth.onAuthStateChange(function (evento) { if (evento === "SIGNED_IN" || evento === "SIGNED_OUT") iniciar() })
 
   // ---------- Abas ----------
+  var estrada = window.painelNaEstrada({ rpc: rpc, esc: esc, num: num })
   document.querySelectorAll(".abas button").forEach(function (b) { b.onclick = function () { abrir(b.dataset.aba) } })
   function abrir(aba) {
     document.querySelectorAll(".abas button").forEach(function (b) { b.setAttribute("aria-selected", String(b.dataset.aba === aba)) })
     document.querySelectorAll("[data-painel]").forEach(function (s) { s.hidden = s.dataset.painel !== aba })
+    if (aba === "estrada") estrada.abrir(); else estrada.fechar()
     if (carregadas[aba]) { if (aba === "adesao" && mapa) mapa.resize(); return }
     carregadas[aba] = true
     if (aba === "adesao") carregarAdesao()

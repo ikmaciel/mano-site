@@ -8,7 +8,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="icon" href="/mano.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
-<link rel="stylesheet" href="/painel-mano/painel.css?v=20261031">
+<link rel="stylesheet" href="/painel-mano/painel.css?v=20261102">
 </head>
 <body>
 <!-- Área de superadministração (decisões do proprietário, 23/10/2026). Sem link no site; o acesso é conferido no
@@ -40,6 +40,7 @@
 <main id="painel" hidden>
   <nav class="abas" role="tablist">
     <button role="tab" data-aba="adesao" aria-selected="true">Adesão</button>
+    <button role="tab" data-aba="estrada">Na estrada</button>
     <button role="tab" data-aba="grupos">Grupos</button>
     <button role="tab" data-aba="usuarios">Usuários</button>
     <button role="tab" data-aba="denuncias">Denúncias</button>
@@ -50,6 +51,18 @@
     <div class="numeros" id="numeros"></div>
     <div class="caixa"><h2>Onde estão</h2><p class="fraco">Contas por região de ~11 km, pela partida da última viagem. Nunca mostra a posição de uma pessoa.</p><div id="mapa"></div></div>
     <div class="caixa"><h2>Novas contas por dia</h2><div id="cadastros" class="barras"></div></div>
+  </section>
+
+  <section data-painel="estrada" hidden>
+    <div class="numeros" id="numeros-estrada"></div>
+    <div class="caixa">
+      <h2>Na estrada agora</h2>
+      <p class="fraco">Com nome, só quem deixou no colete, pela mesma regra do mapa do app. Os demais aparecem como mancha de ~5 km, com 15 minutos de atraso e longe da partida e do destino (decisão 410). Toque numa moto com nome para ver o rastro.</p>
+      <div id="mapa-estrada"></div>
+      <p class="fraco" id="estrada-hora"></p>
+      <p class="erro" id="estrada-erro" role="alert"></p>
+    </div>
+    <div class="caixa"><h2>Com nome</h2><div id="lista-estrada"></div></div>
   </section>
 
   <section data-painel="grupos" hidden>
@@ -98,6 +111,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
-<script src="/painel-mano/painel.js?v=20261031b"></script>
+<script src="/painel-mano/na-estrada.js?v=20261102"></script>
+<script src="/painel-mano/painel.js?v=20261102"></script>
 </body>
 </html>
