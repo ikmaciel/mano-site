@@ -8,7 +8,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="icon" href="/mano.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
-<link rel="stylesheet" href="/painel-mano/painel.css?v=20261102">
+<link rel="stylesheet" href="/painel-mano/painel.css?v=20261104">
 </head>
 <body>
 <!-- Área de superadministração (decisões do proprietário, 23/10/2026). Sem link no site; o acesso é conferido no
@@ -97,11 +97,11 @@
   <section data-painel="adesivos" hidden>
     <div class="numeros" id="numeros-adesivos"></div>
     <div class="caixa">
-      <h2>Adesivos por lugar</h2>
-      <p class="fraco">Quem colou cada adesivo só aparece aqui. No app, o ranking mostra só o lugar, os brasões e quantas vezes cada um foi colado (decisões 404 e 406).</p>
+      <h2>Vitrines dos lugares</h2>
+      <p class="fraco">Os brasões colados em cada lugar e quantas vezes (×N). Toque num brasão para ver quem colou e invalidar; isso só aparece aqui, porque o app mostra só os brasões e as quantidades (decisões 404, 406 e 430).</p>
       <div class="linha"><input id="busca-adesivo" placeholder="Lugar, pessoa ou grupo"><select id="filtro-adesivo"><option value="all">Todos</option><option value="active">Com adesivo valendo</option><option value="invalidated">Com adesivo invalidado</option></select></div>
       <p class="fraco" id="total-adesivos"></p>
-      <div id="lista-adesivos"></div>
+      <div id="lista-adesivos" class="vitrines"></div>
       <button class="botao claro" id="mais-adesivos" hidden>Mostrar mais</button>
     </div>
   </section>
@@ -112,6 +112,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
 <script src="/painel-mano/na-estrada.js?v=20261102"></script>
-<script src="/painel-mano/painel.js?v=20261102"></script>
+<script src="/painel-mano/vitrine.js?v=20261104"></script>
+<script src="/painel-mano/painel.js?v=20261104"></script>
 </body>
 </html>

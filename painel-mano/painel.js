@@ -307,24 +307,55 @@
     })
   }
 
-  // ---------- Adesivos (decisões 404 e 406) ----------
-  // Lugares com adesivo, do mais recente para o mais antigo, com quem colou cada um. Invalidar tira o adesivo da
-  // parede e do ranking do app; o motivo fica na auditoria. Busca, filtro e páginas no servidor (decisão 313).
+  // ---------- Adesivos (decisões 404, 406 e 430) ----------
+  // Cada lugar é uma vitrine com os brasões colados e quantas vezes (vitrine.js). Tocar num brasão abre quem colou;
+  // Invalidar tira o adesivo da parede e do ranking do app, com o motivo na auditoria. Busca, filtro e páginas no
+  // servidor (decisão 313).
   var paginaAdesivos = 1
   var temporizadorAdesivo
   var categorias = { posto: "Posto", oficina: "Oficina", borracharia: "Borracharia", pecas: "Peças", restaurante: "Restaurante", lanchonete: "Lanchonete", guincho: "Guincho", hospedagem: "Hotel / pousada", sede: "Sede", camping: "Camping" }
+  var vitrine = window.painelVitrine({ esc: esc, num: num, data: data, categorias: categorias })
+  var lugaresAdesivos = {}
+  var fichaAberta = null
+  vitrine.observar($("lista-adesivos"))
   $("busca-adesivo").oninput = function () { clearTimeout(temporizadorAdesivo); temporizadorAdesivo = setTimeout(function () { carregarAdesivos(true) }, 300) }
   $("filtro-adesivo").onchange = function () { carregarAdesivos(true) }
   $("mais-adesivos").onclick = function () { carregarAdesivos(false) }
   function linhaAdesivo(a) {
     var invalidado = Boolean(a.invalidatedAt)
-    return '<div class="item"><div class="texto"><b>' + esc(a.memberName) + "</b>" + esc(a.email || "") + " · brasão " + esc(a.clubName) + " · " + data(a.createdAt, true) +
+    return '<div class="item"><div class="texto"><b>' + esc(a.memberName) + "</b>" + esc(a.email || "") + " · " + data(a.createdAt, true) +
       '<br><span class="fraco">' + (a.presenceMode === "nearby" ? "GPS a até 500 m" : "presença declarada") + " · " + num(a.memberPatches) + " adesivo(s) valendo desta pessoa no total</span>" +
       (invalidado ? '<br><span class="selo alerta">invalidado</span><span class="fraco">' + data(a.invalidatedAt, true) + " por " + esc(a.invalidatedBy || "—") + ": " + esc(a.invalidationReason || "") + "</span>" : "") + "</div>" +
       '<div class="acoes">' + (invalidado ? '<button class="botao claro" data-restaurar="' + a.id + '">Restaurar</button>' : '<button class="botao perigo" data-invalidar="' + a.id + '">Invalidar</button>') + "</div></div>"
   }
+  function escolherBrasao(cartao, chave) {
+    cartao.querySelectorAll(".adesivo").forEach(function (b) {
+      var sim = b.dataset.brasao === chave
+      b.classList.toggle("escolhido", sim)
+      b.setAttribute("aria-expanded", String(sim))
+    })
+  }
+  function fecharFicha() {
+    var cartao = fichaAberta && document.querySelector('.vitrine[data-lugar="' + CSS.escape(fichaAberta.lugar) + '"]')
+    fichaAberta = null
+    if (!cartao) return
+    cartao.classList.remove("aberta")
+    cartao.querySelector(".ficha-vitrine").hidden = true
+    escolherBrasao(cartao, null)
+  }
+  function abrirFicha(lugar, chave) {
+    var cartao = document.querySelector('.vitrine[data-lugar="' + CSS.escape(lugar) + '"]')
+    var conteudo = cartao && lugaresAdesivos[lugar] ? vitrine.ficha(lugaresAdesivos[lugar], chave, linhaAdesivo) : ""
+    if (!conteudo) { fichaAberta = null; return }
+    var ficha = cartao.querySelector(".ficha-vitrine")
+    ficha.innerHTML = conteudo
+    ficha.hidden = false
+    cartao.classList.add("aberta")
+    escolherBrasao(cartao, chave)
+    fichaAberta = { lugar: lugar, brasao: chave }
+  }
   async function carregarAdesivos(doZero) {
-    if (doZero) { paginaAdesivos = 1; $("lista-adesivos").innerHTML = "" } else paginaAdesivos++
+    if (doZero) { paginaAdesivos = 1; lugaresAdesivos = {}; $("lista-adesivos").innerHTML = "" } else paginaAdesivos++
     try {
       var r = await rpc("admin_web_place_patches", { p_query: $("busca-adesivo").value, p_filter: $("filtro-adesivo").value, p_page: paginaAdesivos, p_page_size: 30 })
       var t = r.totals
@@ -333,19 +364,24 @@
         [t.patches30, "novos em 30 dias"], [t.clubs, "motoclubes que adesivaram"], [t.invalidated, "invalidados"],
       ].map(function (c) { return '<div class="numero"><b>' + num(c[0]) + "</b><span>" + esc(c[1]) + "</span></div>" }).join("")
       $("total-adesivos").textContent = num(r.total) + " lugar(es)"
-      $("lista-adesivos").insertAdjacentHTML("beforeend", r.items.map(function (l) {
-        var cidade = l.city && !/^próximo à estrada$/i.test(l.city) ? " · " + esc(l.city) : ""
-        var mapa = l.latitude != null ? ' · <a href="https://www.openstreetmap.org/?mlat=' + Number(l.latitude) + "&mlon=" + Number(l.longitude) + "#map=17/" + Number(l.latitude) + "/" + Number(l.longitude) + '" target="_blank" rel="noopener">ver no mapa</a>' : ""
-        return '<div class="item"><div class="texto"><b>' + esc(l.placeName) + "</b>" + esc(categorias[l.category] || "Local") + cidade + mapa +
-          '<br><span class="selo ' + (l.active > 0 ? "ok" : "") + '">' + num(l.active) + " valendo</span>" + (l.invalidated ? '<span class="selo alerta">' + num(l.invalidated) + " invalidado(s)</span>" : "") +
-          (l.catalogActive ? "" : '<span class="selo alerta">fora do catálogo</span>') + '<span class="fraco">último em ' + data(l.lastAt, true) + "</span>" +
-          '<div class="adesivos">' + l.patches.map(linhaAdesivo).join("") + "</div></div></div>"
-      }).join("") || (doZero ? '<p class="fraco">Nenhum adesivo.</p>' : ""))
+      r.items.forEach(function (l) { lugaresAdesivos[l.placeKey] = l })
+      $("lista-adesivos").insertAdjacentHTML("beforeend", r.items.map(vitrine.lugar).join("") || (doZero ? '<p class="fraco">Nenhum adesivo.</p>' : ""))
       mostrar("mais-adesivos", paginaAdesivos * r.pageSize < r.total)
+      // Depois de invalidar ou restaurar, a lista volta com o mesmo brasão aberto.
+      if (doZero && fichaAberta) abrirFicha(fichaAberta.lugar, fichaAberta.brasao)
     } catch (e) { falha("lista-adesivos", e) }
   }
   $("lista-adesivos").onclick = function (ev) {
     var b = ev.target.closest("button"); if (!b) return
+    if (b.dataset.brasao !== undefined) {
+      var lugar = b.closest(".vitrine").dataset.lugar
+      var mesmo = fichaAberta && fichaAberta.lugar === lugar && fichaAberta.brasao === b.dataset.brasao
+      fecharFicha()
+      if (!mesmo) abrirFicha(lugar, b.dataset.brasao)
+      return
+    }
+    if (b.dataset.fechar !== undefined) { fecharFicha(); return }
+    if (!b.dataset.invalidar && !b.dataset.restaurar) return
     var invalidar = Boolean(b.dataset.invalidar), id = Number(b.dataset.invalidar || b.dataset.restaurar)
     janela(invalidar ? "Invalidar adesivo" : "Restaurar adesivo",
       invalidar ? "<p>O adesivo sai da parede do lugar e deixa de contar no ranking do app. A pessoa não consegue colar de novo o mesmo brasão ali.</p>" : "<p>O adesivo volta para a parede do lugar e para o ranking.</p>",
