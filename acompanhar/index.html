@@ -38,10 +38,14 @@
   // Cada moto ganha uma cor, transparente para mostrar onde os caminhos se sobrepõem. A cor segue o
   // publicId, nunca o nome; quem chega primeiro (em ordem do id) fica com a primeira cor, e ela não muda.
   var CORES = ["#2563eb", "#7c3aed", "#db2777", "#0f766e", "#1f2937", "#a16207"], corDe = {}, usadas = 0, rotulo = {}
+  // O nome vem só da posição ao vivo. Quem encerra antes perde a posição, mas o rastro fica: sem guardar o
+  // nome já visto, ele virava "Motociclista MANO 2" (comboio 413 no HML, 08/11/2026).
+  var nomeVisto = {}
   function identificar(s) {
     var porMoto = {}, nomes = {}
     ;(s.traveled || []).forEach(function (p) { (porMoto[p.publicId] = porMoto[p.publicId] || []).push([p.latitude, p.longitude]) })
-    ;(s.positions || []).forEach(function (p) { nomes[p.publicId] = p.riderName })
+    ;(s.positions || []).forEach(function (p) { nomes[p.publicId] = nomeVisto[p.publicId] = p.riderName })
+    Object.keys(porMoto).forEach(function (id) { if (!(id in nomes) && nomeVisto[id]) nomes[id] = nomeVisto[id] })
     var novos = Object.keys(porMoto).concat(Object.keys(nomes))
     novos.filter(function (id, i) { return id && !corDe[id] && novos.indexOf(id) === i }).sort()
       .forEach(function (id) { corDe[id] = CORES[usadas++ % CORES.length] })
