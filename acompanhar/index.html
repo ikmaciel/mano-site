@@ -33,6 +33,13 @@
     stopped: { s: "!", t: "está parado" },
     stop: { s: "!", t: "pediu para o grupo encostar com segurança" },
   }
+  // Decisão 454: a Parada na viagem chega como aviso "stopped" com o motivo em pauseKind.
+  var paradas = {
+    fuel: { s: "⛽", t: "parou para abastecer" },
+    food: { s: "🍽", t: "parou para comer" },
+    rest: { s: "☕", t: "parou para descansar" },
+  }
+  function avisoDe(g) { return (g.pauseKind && paradas[g.pauseKind]) || avisos[g.signalType] }
   var mapa = M.novoMapa($("mapa")), rotas = L.layerGroup().addTo(mapa), motos = L.layerGroup().addTo(mapa), enquadrou = false, conectado = true, ultimo = null
 
   function resumo(s) {
@@ -70,13 +77,13 @@
       pontos.push([p.latitude, p.longitude])
     })
     ;(s.signals || []).forEach(function (g) {
-      var a = avisos[g.signalType]; if (!a) return
+      var a = avisoDe(g); if (!a) return
       L.marker([g.latitude, g.longitude], { icon: L.divIcon({ className: "", html: '<span class="moto"><b>' + a.s + "</b></span>", iconSize: [40, 40], iconAnchor: [20, 20] }) }).addTo(motos)
         .bindTooltip(M.escapar(g.riderName + " · " + a.t + " · " + M.hora(g.createdAt)))
       pontos.push([g.latitude, g.longitude])
     })
     var recente = (s.signals || [])[0]
-    if (recente && avisos[recente.signalType]) { $("alerta").hidden = false; $("alerta").className = "caixa alerta" + (recente.signalType === "stop" ? " parar" : ""); $("alerta-nome").textContent = recente.riderName; $("alerta-texto").textContent = avisos[recente.signalType].t + "." } else $("alerta").hidden = true
+    if (recente && avisoDe(recente)) { $("alerta").hidden = false; $("alerta").className = "caixa alerta" + (recente.signalType === "stop" ? " parar" : ""); $("alerta-nome").textContent = recente.riderName; $("alerta-texto").textContent = avisoDe(recente).t + "." } else $("alerta").hidden = true
     mapa.invalidateSize()
     if (!enquadrou && pontos.length > 1) { mapa.fitBounds(L.latLngBounds(pontos), { padding: [45, 45] }); enquadrou = true }
     else if (!enquadrou && pontos.length === 1) { mapa.setView(pontos[0], 14); enquadrou = true }
