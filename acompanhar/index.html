@@ -10,20 +10,20 @@
 <link rel="icon" href="/mano.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
-<link rel="stylesheet" href="/acompanhar/comum.css?v=20261020">
+<link rel="stylesheet" href="/acompanhar/comum.css?v=20261108">
 </head>
 <body>
 <main>
 <header><img src="/mano.png" alt="MANO BROTHERHOOD"><div><small>COMBOIO AO VIVO</small><h1 id="nome">Comboio MANO</h1><p id="trajeto">Carregando viagem…</p></div><span class="selo off" id="selo">○ CARREGANDO</span></header>
 <section id="mapa" aria-label="Mapa do comboio"></section>
-<aside class="caixa" id="resumo"><b id="titulo">Carregando o comboio</b><p id="detalhe">As posições aparecem assim que os celulares enviarem a localização.</p></aside>
+<aside class="caixa" id="resumo"><b id="titulo">Carregando o comboio</b><p id="detalhe">As posições aparecem assim que os celulares enviarem a localização.</p><p class="legenda" id="legenda" hidden></p></aside>
 <aside class="caixa alerta" id="alerta" hidden><b id="alerta-nome"></b><p id="alerta-texto"></p></aside>
 <footer><b>MANO BROTHERHOOD</b><span>Viaje sozinho. Nunca desacompanhado.</span></footer>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@maplibre/maplibre-gl-leaflet@0.0.22/leaflet-maplibre-gl.min.js"></script>
-<script src="/acompanhar/comum.js?v=20261020b"></script>
+<script src="/acompanhar/comum.js?v=20261108"></script>
 <script>
 (function () {
   var M = window.MANO, $ = function (id) { return document.getElementById(id) }
@@ -41,6 +41,29 @@
   }
   function avisoDe(g) { return (g.pauseKind && paradas[g.pauseKind]) || avisos[g.signalType] }
   var mapa = M.novoMapa($("mapa")), rotas = L.layerGroup().addTo(mapa), motos = L.layerGroup().addTo(mapa), enquadrou = false, conectado = true, ultimo = null
+  // 08/11/2026 (quem acompanhou o comboio 11): com o mesmo traço escuro, os rastros pareciam um trajeto só.
+  // Cada moto ganha uma cor, transparente para mostrar onde os caminhos se sobrepõem. A cor segue o
+  // publicId, nunca o nome; quem chega primeiro (em ordem do id) fica com a primeira cor, e ela não muda.
+  var CORES = ["#2563eb", "#7c3aed", "#db2777", "#0f766e", "#1f2937", "#a16207"], corDe = {}, usadas = 0, rotulo = {}
+  // O nome vem só da posição ao vivo. Quem encerra antes perde a posição, mas o rastro fica: sem guardar o
+  // nome já visto, ele virava "Motociclista MANO 2" (comboio 413 no HML, 08/11/2026).
+  var nomeVisto = {}
+  function identificar(s) {
+    var porMoto = {}, nomes = {}
+    ;(s.traveled || []).forEach(function (p) { (porMoto[p.publicId] = porMoto[p.publicId] || []).push([p.latitude, p.longitude]) })
+    ;(s.positions || []).forEach(function (p) { nomes[p.publicId] = nomeVisto[p.publicId] = p.riderName })
+    Object.keys(porMoto).forEach(function (id) { if (!(id in nomes) && nomeVisto[id]) nomes[id] = nomeVisto[id] })
+    var novos = Object.keys(porMoto).concat(Object.keys(nomes))
+    novos.filter(function (id, i) { return id && !corDe[id] && novos.indexOf(id) === i }).sort()
+      .forEach(function (id) { corDe[id] = CORES[usadas++ % CORES.length] })
+    var ids = Object.keys(corDe).filter(function (id) { return porMoto[id] || id in nomes })
+      .sort(function (a, b) { return CORES.indexOf(corDe[a]) - CORES.indexOf(corDe[b]) })
+    // Mais de um anônimo: numerados pela ordem da cor, para a legenda separar um do outro.
+    var anonimos = ids.filter(function (id) { return !nomes[id] || nomes[id] === "Motociclista MANO" })
+    rotulo = {}
+    ids.forEach(function (id) { rotulo[id] = anonimos.indexOf(id) < 0 ? nomes[id] : "Motociclista MANO" + (anonimos.length > 1 ? " " + (anonimos.indexOf(id) + 1) : "") })
+    return { porMoto: porMoto, ids: ids }
+  }
 
   function resumo(s) {
     var maisNovo = (s.positions || []).reduce(function (a, p) { return Math.max(a, p.updatedAt) }, 0) || null
@@ -51,7 +74,7 @@
     $("titulo").textContent = n + " motociclista" + (n === 1 ? "" : "s") + " no trajeto"
     var semSinal = (s.positions || []).filter(function (p) { return s.serverTime - p.updatedAt > M.AO_VIVO_MS })
     $("detalhe").textContent = (s.status === "ended" ? "Comboio encerrado. Por privacidade, as posições e os trajetos não aparecem mais."
-      : semSinal.length ? semSinal.map(function (p) { return p.riderName + ": sem sinal desde " + M.hora(p.updatedAt) }).join(" · ") + ". Quando o sinal voltar, o trecho percorrido aparece no mapa."
+      : semSinal.length ? semSinal.map(function (p) { return (rotulo[p.publicId] || p.riderName) + ": sem sinal desde " + M.hora(p.updatedAt) }).join(" · ") + ". Quando o sinal voltar, o trecho percorrido aparece no mapa."
       : "Posições ao vivo compartilhadas somente durante este comboio. Se o sinal cair, o último local e o horário ficam no mapa.") + (!conectado ? " Sem conexão com o servidor agora; o mapa tenta de novo sozinho." : "")
   }
 
@@ -59,21 +82,25 @@
     ultimo = s
     $("nome").textContent = s.convoy.name || "Comboio MANO"
     $("trajeto").textContent = (s.convoy.origin || "") + " → " + (s.convoy.destination || "")
+    var quem = identificar(s), porMoto = quem.porMoto
     resumo(s)
     rotas.clearLayers(); motos.clearLayers()
     var rota = (s.route && s.route.routeCoordinates) || [], pontos = rota.slice()
     if (rota.length > 1) L.polyline(rota, { color: "#c84632", weight: 5, opacity: .75, dashArray: "10 10" }).addTo(rotas)
-    var porMoto = {}
-    ;(s.traveled || []).forEach(function (p) { (porMoto[p.publicId] = porMoto[p.publicId] || []).push([p.latitude, p.longitude]); pontos.push([p.latitude, p.longitude]) })
-    Object.keys(porMoto).forEach(function (k) { if (porMoto[k].length > 1) L.polyline(porMoto[k], { color: "#24343b", weight: 5, opacity: .9 }).addTo(rotas) })
+    Object.keys(porMoto).forEach(function (k) {
+      porMoto[k].forEach(function (p) { pontos.push(p) })
+      if (porMoto[k].length > 1) L.polyline(porMoto[k], { color: corDe[k], weight: 6, opacity: .55 }).addTo(rotas).bindTooltip(M.escapar(rotulo[k]), { sticky: true })
+    })
+    $("legenda").hidden = !quem.ids.length || s.status === "ended"
+    $("legenda").innerHTML = '<span><i class="plano"></i>Trajeto planejado</span>' + quem.ids.map(function (id) { return '<span><i style="background:' + corDe[id] + '"></i>' + M.escapar(rotulo[id]) + "</span>" }).join("")
     ;(s.positions || []).forEach(function (p) {
       var aviso = p.signalType ? avisos[p.signalType] : null
       var parado = s.serverTime - p.updatedAt > M.AO_VIVO_MS
-      var nome = p.riderName && p.riderName !== "Motociclista MANO" ? '<span class="nome">' + M.escapar(p.riderName) + "</span>" : ""
+      var nome = p.riderName && p.riderName !== "Motociclista MANO" ? '<span class="nome" style="border-bottom:3px solid ' + corDe[p.publicId] + '">' + M.escapar(p.riderName) + "</span>" : ""
       var anonimo = !p.riderName || p.riderName === "Motociclista MANO"
-      var icone = M.moto(anonimo ? "gray" : "green", { parado: parado, aviso: aviso ? aviso.s : "", nome: nome })
+      var icone = M.moto(anonimo ? "gray" : "green", { parado: parado, aviso: aviso ? aviso.s : "", nome: nome, anel: corDe[p.publicId] })
       L.marker([p.latitude, p.longitude], { icon: icone }).addTo(motos)
-        .bindTooltip(M.escapar(p.riderName + (aviso ? " · " + aviso.t : "") + (parado ? " · sem sinal desde " + M.hora(p.updatedAt) : "")), { permanent: parado, direction: "top", offset: [0, -18] })
+        .bindTooltip(M.escapar(rotulo[p.publicId] +(aviso ? " · " + aviso.t : "") + (parado ? " · sem sinal desde " + M.hora(p.updatedAt) : "")), { permanent: parado, direction: "top", offset: [0, -18] })
       pontos.push([p.latitude, p.longitude])
     })
     ;(s.signals || []).forEach(function (g) {
@@ -92,7 +119,7 @@
   M.acompanhar("comboio-publico",
     function (s) { conectado = true; desenhar(s) },
     function (msg, jaRecebeu) { conectado = false; if (ultimo) resumo(ultimo); if (!jaRecebeu) { $("titulo").textContent = "Reconectando…"; $("detalhe").textContent = msg + " O mapa continuará tentando." } },
-    function (msg) { $("selo").textContent = "✓ ENCERRADO"; $("selo").className = "selo off"; $("titulo").textContent = "Acompanhamento encerrado"; $("trajeto").textContent = "Link encerrado"; $("detalhe").textContent = msg; rotas.clearLayers(); motos.clearLayers() })
+    function (msg) { $("selo").textContent = "✓ ENCERRADO"; $("selo").className = "selo off"; $("titulo").textContent = "Acompanhamento encerrado"; $("trajeto").textContent = "Link encerrado"; $("detalhe").textContent = msg; $("legenda").hidden = true; rotas.clearLayers(); motos.clearLayers() })
 })()
 </script>
 </body>
