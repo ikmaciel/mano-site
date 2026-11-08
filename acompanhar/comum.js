@@ -103,11 +103,13 @@
 
   // Motos ilustradas do app: vermelha = quem está sendo acompanhado; verde = companheiro identificado;
   // cinza = anônimo ("Motociclista MANO"). Girada para o rumo quando ele existe.
+  // opcoes.anel: no comboio, a cor do rastro daquela moto num anel em volta (08/11/2026).
   function moto(cor, opcoes) {
     opcoes = opcoes || {}
     var giro = Number.isFinite(opcoes.rumo) ? ' style="transform:rotate(' + Math.round(opcoes.rumo) + 'deg)"' : ""
+    var anel = opcoes.anel ? ' anel" style="--anel:' + opcoes.anel : ""
     return L.divIcon({ className: "", iconSize: [36, 36], iconAnchor: [18, 18],
-      html: '<span class="moto' + (opcoes.parado ? " cinza" : "") + '"><img src="/motos/' + cor + '.webp" alt=""' + giro + ">" + (opcoes.aviso ? "<b>" + opcoes.aviso + "</b>" : "") + "</span>" + (opcoes.nome || "") })
+      html: '<span class="moto' + (opcoes.parado ? " cinza" : "") + anel + '"><img src="/motos/' + cor + '.webp" alt=""' + giro + ">" + (opcoes.aviso ? "<b>" + opcoes.aviso + "</b>" : "") + "</span>" + (opcoes.nome || "") })
   }
 
   window.MANO = { sinal: sinal, hora: hora, escapar: escapar, acompanhar: acompanhar, novoMapa: novoMapa, moto: moto, AO_VIVO_MS: AO_VIVO_MS }
