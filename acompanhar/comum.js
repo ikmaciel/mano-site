@@ -112,5 +112,16 @@
       html: '<span class="moto' + (opcoes.parado ? " cinza" : "") + anel + '"><img src="/motos/' + cor + '.webp" alt=""' + giro + ">" + (opcoes.aviso ? "<b>" + opcoes.aviso + "</b>" : "") + "</span>" + (opcoes.nome || "") })
   }
 
-  window.MANO = { sinal: sinal, hora: hora, escapar: escapar, acompanhar: acompanhar, novoMapa: novoMapa, moto: moto, AO_VIVO_MS: AO_VIVO_MS }
+  // Pedido do proprietário (11/11/2026): no comboio, a moto aponta para onde está andando. A posição pública não traz
+  // o rumo; ele sai do rastro: do último ponto a 15 m ou mais até a posição atual (parado no lugar, fica como estava).
+  function rumoDoRastro(rastro, atual) {
+    var rad = Math.PI / 180
+    for (var i = rastro.length - 1; i >= 0; i--) {
+      var a = rastro[i], dy = (atual[0] - a[0]) * 111195, dx = (atual[1] - a[1]) * 111195 * Math.cos(atual[0] * rad)
+      if (Math.sqrt(dx * dx + dy * dy) >= 15) return (Math.atan2(dx, dy) / rad + 360) % 360
+    }
+    return null
+  }
+
+  window.MANO = { sinal: sinal, hora: hora, escapar: escapar, acompanhar: acompanhar, novoMapa: novoMapa, moto: moto, rumoDoRastro: rumoDoRastro, AO_VIVO_MS: AO_VIVO_MS }
 })()

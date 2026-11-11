@@ -98,7 +98,8 @@
       var parado = s.serverTime - p.updatedAt > M.AO_VIVO_MS
       var nome = p.riderName && p.riderName !== "Motociclista MANO" ? '<span class="nome" style="border-bottom:3px solid ' + corDe[p.publicId] + '">' + M.escapar(p.riderName) + "</span>" : ""
       var anonimo = !p.riderName || p.riderName === "Motociclista MANO"
-      var icone = M.moto(anonimo ? "gray" : "green", { parado: parado, aviso: aviso ? aviso.s : "", nome: nome, anel: corDe[p.publicId] })
+      var rumo = M.rumoDoRastro(quem.porMoto[p.publicId] || [], [p.latitude, p.longitude])
+      var icone = M.moto(anonimo ? "gray" : "green", { parado: parado, aviso: aviso ? aviso.s : "", nome: nome, anel: corDe[p.publicId], rumo: rumo === null ? undefined : rumo })
       L.marker([p.latitude, p.longitude], { icon: icone }).addTo(motos)
         .bindTooltip(M.escapar(rotulo[p.publicId] +(aviso ? " · " + aviso.t : "") + (parado ? " · sem sinal desde " + M.hora(p.updatedAt) : "")), { permanent: parado, direction: "top", offset: [0, -18] })
       pontos.push([p.latitude, p.longitude])
