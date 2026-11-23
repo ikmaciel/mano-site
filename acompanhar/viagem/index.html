@@ -55,7 +55,16 @@
     camada.clearLayers()
     var rota = s.routeCoordinates || [], feito = s.traveledCoordinates || [], pontos = rota.concat(feito)
     if (rota.length > 1) L.polyline(rota, { color: "#c84632", weight: 6, opacity: .55, dashArray: "10 8" }).addTo(camada)
-    if (feito.length > 1) L.polyline(feito, { color: "#24343b", weight: 7, opacity: .95 }).addTo(camada)
+    // Decisão 480: o trajeto vem cortado onde ficou mais de 10 min sem ponto; o buraco aparece pela rota, pontilhado
+    // e mais claro ("estimado"), e o fim fora da rota como uma linha fininha. Servidor antigo: uma linha só, como antes.
+    var trechos = s.traveledSegments || (feito.length ? [feito] : [])
+    trechos.forEach(function (t) { if (t.length > 1) L.polyline(t, { color: "#24343b", weight: 7, opacity: .95 }).addTo(camada) })
+    ;(s.estimatedSegments || []).forEach(function (e) {
+      var dica = M.escapar("Sem sinal das " + M.hora(e.startsAt) + " às " + M.hora(e.endsAt) + " · caminho estimado pela rota")
+      if (e.route && e.route.length > 1) L.polyline(e.route, { color: "#24343b", weight: 6, opacity: .45, dashArray: "2 10", lineCap: "round" }).addTo(camada).bindTooltip(dica)
+      if (e.offroute && e.offroute.length > 1) L.polyline(e.offroute, { color: "#24343b", weight: 3, opacity: .35, dashArray: "2 8", lineCap: "round" }).addTo(camada).bindTooltip(dica)
+      if (e.route) pontos = pontos.concat(e.route)
+    })
     ;(s.notices || []).forEach(function (n) {
       L.circleMarker([n.latitude, n.longitude], { radius: 9, color: "#fff", weight: 2, fillColor: "#a7181d", fillOpacity: 1 }).addTo(camada)
         .bindTooltip(M.escapar(n.kind + (n.characteristics ? " · " + n.characteristics : "") + " · " + M.hora(n.createdAt)))
