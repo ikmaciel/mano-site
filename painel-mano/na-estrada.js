@@ -38,12 +38,15 @@ window.painelNaEstrada = function (ajuda) {
       mapa.addImage("moto-seta", seta(), { pixelRatio: 2 })
       mapa.addSource("estrada-manchas", { type: "geojson", data: vazio })
       mapa.addSource("estrada-rastro", { type: "geojson", data: vazio })
+      mapa.addSource("estrada-estimado", { type: "geojson", data: vazio })
       mapa.addSource("estrada-nomes", { type: "geojson", data: vazio })
       mapa.addLayer({ id: "estrada-manchas", type: "circle", source: "estrada-manchas", paint: {
         "circle-color": "#5b5a52", "circle-opacity": 0.35, "circle-stroke-color": "#5b5a52", "circle-stroke-width": 1,
         "circle-radius": ["interpolate", ["exponential", 2], ["zoom"], 9, 10, 13, 150],
       } })
       mapa.addLayer({ id: "estrada-manchas-numero", type: "symbol", source: "estrada-manchas", layout: { "text-field": ["to-string", ["get", "riders"]], "text-size": 12, "text-font": ["Noto Sans Regular"], "text-allow-overlap": true }, paint: { "text-color": "#ffffff" } })
+      // Decisão 480: onde o celular ficou sem sinal, o caminho estimado pela rota, pontilhado e mais claro (como no link).
+      mapa.addLayer({ id: "estrada-estimado", type: "line", source: "estrada-estimado", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "#224f5a", "line-width": 4, "line-opacity": 0.45, "line-dasharray": [0.5, 2.5] } })
       mapa.addLayer({ id: "estrada-rastro", type: "line", source: "estrada-rastro", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "#224f5a", "line-width": 4, "line-opacity": 0.8 } })
       mapa.addLayer({ id: "estrada-nomes", type: "symbol", source: "estrada-nomes", layout: {
         "icon-image": "moto-seta", "icon-rotate": ["get", "heading"], "icon-rotation-alignment": "map", "icon-allow-overlap": true,
@@ -61,6 +64,7 @@ window.painelNaEstrada = function (ajuda) {
     mapa.getSource("estrada-nomes").setData(pontos(d.named, function (n) { return { tripId: n.tripId, alias: n.alias, heading: Number(n.heading || 0) } }))
     mapa.getSource("estrada-manchas").setData(pontos(d.cells, function (c) { return { riders: c.riders } }))
     mapa.getSource("estrada-rastro").setData(d.trail ? { type: "Feature", properties: {}, geometry: d.trail } : vazio)
+    mapa.getSource("estrada-estimado").setData(d.estimated ? { type: "Feature", properties: {}, geometry: d.estimated } : vazio)
     var todos = d.named.concat(d.cells)
     if (!enquadrou && todos.length) {
       var b = new maplibregl.LngLatBounds()
