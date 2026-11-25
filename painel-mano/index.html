@@ -8,7 +8,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="icon" href="/mano.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
-<link rel="stylesheet" href="/painel-mano/painel.css?v=20261104">
+<link rel="stylesheet" href="/painel-mano/painel.css?v=20261125b">
 </head>
 <body>
 <!-- Área de superadministração (decisões do proprietário, 23/10/2026). Sem link no site; o acesso é conferido no
@@ -113,22 +113,24 @@
       <div id="grade-poderes" class="rolagem"></div>
     </div>
     <div class="caixa">
-      <h2>Hierarquia de um grupo</h2>
-      <p class="fraco">Grupo, regionais e subseções, com quem tem cada acesso e cada cargo, e o cargo como aparece no colete.</p>
+      <h2>Organograma de um grupo</h2>
+      <p class="fraco">Escolha o grupo para montar os cargos, o território e as etapas de ingresso. É o mesmo organograma que o clube vê e ajusta no app.</p>
       <input id="busca-poderes" placeholder="Nome ou cidade do grupo">
       <div id="grupos-poderes" class="linha"></div>
-      <div id="arvore-poderes"></div>
+      <div id="organograma"></div>
     </div>
   </section>
 </main>
 
+<dialog id="janela-cargo"><form method="dialog"><h2 id="cargo-titulo"></h2><div id="cargo-corpo"></div><p class="erro" id="cargo-erro" role="alert"></p><div class="linha fim"><button class="botao perigo" id="cargo-remover">Remover</button><button class="botao claro" value="cancelar" formnovalidate>Cancelar</button><button class="botao" id="cargo-salvar">Salvar</button></div></form></dialog>
 <dialog id="janela"><form method="dialog" id="janela-form"><h2 id="janela-titulo"></h2><div id="janela-corpo"></div><label>Motivo (fica na auditoria)<input id="janela-motivo" required minlength="3"></label><p class="erro" id="janela-erro" role="alert"></p><div class="linha fim"><button class="botao claro" value="cancelar" formnovalidate>Cancelar</button><button class="botao" id="janela-ok" value="ok">Salvar</button></div></form></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
 <script src="/painel-mano/na-estrada.js?v=20261102"></script>
 <script src="/painel-mano/vitrine.js?v=20261104"></script>
-<script src="/painel-mano/poderes.js?v=20261125"></script>
-<script src="/painel-mano/painel.js?v=20261125"></script>
+<script src="/painel-mano/organograma.js?v=20261125b"></script>
+<script src="/painel-mano/poderes.js?v=20261125b"></script>
+<script src="/painel-mano/painel.js?v=20261125b"></script>
 </body>
 </html>

@@ -101,3 +101,42 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .cargos{display:flex;flex-direction:column;gap:6px;margin-top:10px}
 .cargo{display:flex;gap:10px;align-items:center}
 .patch{display:inline-block;padding:3px 10px;border:2px solid var(--cor);border-radius:8px;color:var(--cor);font-weight:900;letter-spacing:.04em;background:var(--card);white-space:nowrap}
+
+/* Organograma (decisão 504 do app): caixas como no modelo, com ligações de árvore */
+#organograma h3{margin:20px 0 4px;font-size:16px}
+.escolhido{background:var(--btn-bg)!important;color:var(--btn-fg)!important}
+.org{padding:8px 0 16px}
+.org ul{display:flex;justify-content:center;padding:18px 0 0;margin:0;position:relative;list-style:none}
+.org>ul{padding-top:0}
+.org li{display:flex;flex-direction:column;align-items:center;position:relative;padding:18px 6px 0}
+.org li::before,.org li::after{content:"";position:absolute;top:0;right:50%;width:50%;height:18px;border-top:2px solid var(--fg)}
+.org li::after{right:auto;left:50%;border-left:2px solid var(--fg)}
+.org li:only-child::before,.org li:only-child::after{display:none}
+.org li:only-child{padding-top:0}
+.org li:first-child::before,.org li:last-child::after{border:0}
+.org li:last-child::before{border-right:2px solid var(--fg);border-radius:0 6px 0 0}
+.org li:first-child::after{border-radius:6px 0 0 0}
+.org ul ul::before{content:"";position:absolute;top:0;left:50%;height:18px;border-left:2px solid var(--fg)}
+.org>ul>li::before,.org>ul>li::after{display:none}
+.org-caixa{min-width:150px;max-width:220px;border:2px solid var(--fg);border-radius:10px;background:var(--card);overflow:hidden;cursor:grab;text-align:center}
+.org-caixa.unidade{cursor:default}
+.org-caixa.grupo{border-style:dashed;border-radius:999px}
+.org-caixa.grupo .org-topo{background:transparent;color:var(--cor)}
+.org-caixa.arrastando{opacity:.4}
+.org-caixa.alvo,.org-zona-topo.alvo{outline:3px solid var(--link);outline-offset:3px}
+.org-topo{background:var(--cor,#7f2e24);color:#fff;padding:6px 10px}
+.org-caixa.unidade .org-topo{background:#7f2e24}
+.org-caixa.nacional .org-topo{background:#171814}
+.org-topo b{display:block;font-size:15px;letter-spacing:.04em;text-transform:uppercase;overflow-wrap:anywhere}
+.org-nome{display:block;font-size:12px;opacity:.9}
+.org-corpo{padding:6px 10px;font-size:13px}
+.org-corpo p{margin:2px 0}
+.org-desc{font-style:italic}
+.org-escopo{color:var(--muted);font-size:12px}
+.org-acoes{display:flex;justify-content:center;gap:4px;border-top:1px solid var(--line)}
+.org-acoes .link{min-height:36px;font-size:13px}
+.org-zona-topo{border:2px dashed var(--line);border-radius:10px;padding:6px 12px;margin:8px 0;text-align:center;color:var(--muted)}
+.etapas{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0}
+.etapa{border:2px solid var(--fg);border-radius:10px;padding:6px 12px;display:flex;flex-direction:column;align-items:center;background:var(--card)}
+.etapa .link{min-height:28px;font-size:12px}
+.seta{font-size:24px;color:#7f2e24;font-weight:900}
