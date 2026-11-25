@@ -163,11 +163,11 @@
     var tipos = ["motoclube", "motogrupo", "motocoletivo"].map(function (t) { return '<option value="' + t + '"' + (g.groupType === t ? " selected" : "") + ">" + t + "</option>" }).join("")
     janela("Editar " + g.name,
       '<label>Nome<input id="g-nome" value="' + esc(g.name) + '"></label><label>Tipo<select id="g-tipo">' + tipos + "</select></label>" +
-      '<label>Cidade<input id="g-cidade" value="' + esc(g.city) + '"></label><label>Regional / capítulo<input id="g-capitulo" value="' + esc(g.chapterName || "") + '"></label>' +
+      '<label>Cidade<input id="g-cidade" value="' + esc(g.city) + '"></label><p class="fraco">Regionais, seções e sedes: o próprio grupo define no app (Minha regional e Sedes), e o organograma fica na aba Poderes (decisões 504 e 507).</p>' +
       '<label>Lema<input id="g-lema" value="' + esc(g.motto || "") + '"></label><label>Descrição<input id="g-descricao" value="' + esc(g.description || "") + '"></label>' +
       '<label>Entrada<select id="g-entrada"><option value="request"' + (g.entryMode === "request" ? " selected" : "") + '>Com pedido</option><option value="direct"' + (g.entryMode === "direct" ? " selected" : "") + ">Direta</option></select></label>",
       async function (motivo) {
-        await salvarGrupo(Object.assign({}, g, { name: $("g-nome").value, groupType: $("g-tipo").value, city: $("g-cidade").value, chapterName: $("g-capitulo").value, motto: $("g-lema").value, description: $("g-descricao").value, entryMode: $("g-entrada").value }), motivo)
+        await salvarGrupo(Object.assign({}, g, { name: $("g-nome").value, groupType: $("g-tipo").value, city: $("g-cidade").value, motto: $("g-lema").value, description: $("g-descricao").value, entryMode: $("g-entrada").value }), motivo)
         carregarGrupos()
       })
   }
