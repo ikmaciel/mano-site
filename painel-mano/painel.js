@@ -316,7 +316,7 @@
   var paginaAdesivos = 1
   var temporizadorAdesivo
   var categorias = { posto: "Posto", oficina: "Oficina", borracharia: "Borracharia", pecas: "Peças", restaurante: "Restaurante", lanchonete: "Lanchonete", guincho: "Guincho", hospedagem: "Hotel / pousada", sede: "Sede", camping: "Camping" }
-  var poderes = window.painelPoderes({ esc: esc, num: num, rpc: rpc, $: $ })
+  var poderes = window.painelPoderes({ esc: esc, num: num, rpc: rpc, sb: sb, $: $ })
   var vitrine = window.painelVitrine({ esc: esc, num: num, data: data, categorias: categorias })
   var lugaresAdesivos = {}
   var fichaAberta = null
