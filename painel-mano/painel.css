@@ -77,3 +77,27 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 #mapa-estrada{height:520px;border-radius:12px;overflow:hidden;margin-top:8px}
 .item.escolhida b{color:var(--accent)}
 @media (max-width:600px){#mapa{height:320px}#mapa-estrada{height:380px}.quem{display:none}.vitrines{--escala:.7}.vidro{margin:8px;padding:18px 24px 18px 10px;gap:14px 10px;border-width:8px}}
+
+/* Aba Poderes (decisão 502 do app) */
+.rolagem{overflow-x:auto}
+.grade-poderes{width:100%;border-collapse:collapse;min-width:640px;margin-top:8px}
+.grade-poderes th,.grade-poderes td{border-top:1px solid var(--line);padding:8px;text-align:center;vertical-align:top}
+.grade-poderes thead th{font-size:13px;color:var(--muted);border-top:0}
+.grade-poderes tbody th[scope=row]{text-align:left;font-weight:600}
+.grade-poderes small{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-top:2px}
+.grade-poderes tr.area th{text-align:left;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:16px}
+.grade-poderes td.sim{color:var(--ok);font-weight:900;font-size:18px}
+.grade-poderes td.nao{color:var(--muted)}
+#grupos-poderes{margin:8px 0}
+.unidade{border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:12px;background:var(--bg)}
+.unidade.grupo{border-color:var(--fg)}
+.unidade.regional{border-color:var(--link)}
+.unidade.subsecao{border-style:dashed}
+.unidade .cabeca b{display:block;font-size:17px}
+.unidade .cabeca span{font-size:13px}
+.filhos{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px;padding-left:12px;border-left:3px solid var(--line);margin-top:8px}
+.acessos{display:flex;flex-wrap:wrap;gap:16px;margin-top:8px}
+.acessos span{display:block;font-size:12px}
+.cargos{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.cargo{display:flex;gap:10px;align-items:center}
+.patch{display:inline-block;padding:3px 10px;border:2px solid var(--cor);border-radius:8px;color:var(--cor);font-weight:900;letter-spacing:.04em;background:var(--card);white-space:nowrap}

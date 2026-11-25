@@ -84,6 +84,7 @@
     if (aba === "usuarios") { carregarUsuarios(true); carregarAdmins() }
     if (aba === "denuncias") { carregarDenuncias(); carregarEventos() }
     if (aba === "adesivos") carregarAdesivos(true)
+    if (aba === "poderes") poderes.abrir()
   }
 
   // ---------- Adesão ----------
@@ -175,21 +176,22 @@
     janela((pausar ? "Pausar " : "Reativar ") + g.name, "<p>" + (pausar ? "O grupo some das buscas e para de receber pedidos de entrada até ser reativado. Nada é apagado." : "O grupo volta a aparecer e a receber pedidos.") + "</p>",
       async function (motivo) { await salvarGrupo(Object.assign({}, g, { status: pausar ? "suspended" : "approved" }), motivo); carregarGrupos() })
   }
-  var cargos = { president: "Presidente / líder", admin: "Administrador", road_captain: "Capitão de estrada", member: "Integrante" }
+  // Decisão 499: Capitão de estrada virou cargo do clube; aqui só o acesso no app.
+  var cargos = { president: "Presidente / líder", admin: "Administrador", member: "Integrante" }
   async function carregarMembros(g) {
     var alvo = "membros-" + g.id
     try {
       var r = await rpc("mobile_platform_admin_page", { target_section: "members", target_query: g.name, target_filter: "all", target_page: 1, target_page_size: 50 })
       var lista = r.items.filter(function (m) { return m.clubId === g.id })
       $(alvo).innerHTML = lista.length ? lista.map(function (m) {
-        return '<div class="item"><div class="texto"><b>' + esc(m.displayName) + "</b>" + esc(cargos[m.role] || m.role) + " · " + esc(m.approvalStatus) + '</div><div class="acoes"><button class="botao claro" data-cargo="' + encodeURIComponent(JSON.stringify(m)) + '">Mudar</button></div></div>'
+        return '<div class="item"><div class="texto"><b>' + esc(m.displayName) + "</b>" + esc(cargos[m.role] || (m.role === "road_captain" ? "Integrante" : m.role)) + " · " + esc(m.approvalStatus) + '</div><div class="acoes"><button class="botao claro" data-cargo="' + encodeURIComponent(JSON.stringify(m)) + '">Mudar</button></div></div>'
       }).join("") : '<p class="fraco">Sem integrantes.</p>'
     } catch (e) { falha(alvo, e) }
   }
   function editarMembro(m) {
     var opcoes = Object.keys(cargos).map(function (c) { return '<option value="' + c + '"' + (m.role === c ? " selected" : "") + ">" + cargos[c] + "</option>" }).join("")
     var situacoes = ["approved", "pending", "rejected", "suspended"].map(function (s) { return '<option value="' + s + '"' + (m.approvalStatus === s ? " selected" : "") + ">" + s + "</option>" }).join("")
-    janela(m.displayName + " · " + m.clubName, '<label>Cargo<select id="m-cargo">' + opcoes + '</select></label><label>Situação<select id="m-situacao">' + situacoes + "</select></label><p class=\"fraco\">Dar \"Presidente / líder\" aqui passa a presidência na hora, sem pedir aceite.</p>",
+    janela(m.displayName + " · " + m.clubName, '<label>Acesso no app<select id="m-cargo">' + opcoes + '</select></label><label>Situação<select id="m-situacao">' + situacoes + "</select></label><p class=\"fraco\">Dar \"Presidente / líder\" aqui passa a presidência na hora, sem pedir aceite.</p>",
       async function (motivo) {
         await rpc("mobile_platform_manage_member", { target_member_id: m.id, target_role: $("m-cargo").value, target_approval_status: $("m-situacao").value, target_billing_status: m.billingStatus, target_reason: motivo })
         carregarMembros({ id: m.clubId, name: m.clubName })
@@ -314,6 +316,7 @@
   var paginaAdesivos = 1
   var temporizadorAdesivo
   var categorias = { posto: "Posto", oficina: "Oficina", borracharia: "Borracharia", pecas: "Peças", restaurante: "Restaurante", lanchonete: "Lanchonete", guincho: "Guincho", hospedagem: "Hotel / pousada", sede: "Sede", camping: "Camping" }
+  var poderes = window.painelPoderes({ esc: esc, num: num, rpc: rpc, $: $ })
   var vitrine = window.painelVitrine({ esc: esc, num: num, data: data, categorias: categorias })
   var lugaresAdesivos = {}
   var fichaAberta = null
