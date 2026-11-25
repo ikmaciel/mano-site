@@ -140,3 +140,12 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .etapa{border:2px solid var(--fg);border-radius:10px;padding:6px 12px;display:flex;flex-direction:column;align-items:center;background:var(--card)}
 .etapa .link{min-height:28px;font-size:12px}
 .seta{font-size:24px;color:#7f2e24;font-weight:900}
+
+/* Arrastar com mouse ou dedo (decisão 504): antes, depois ou dentro */
+[data-arrasta]{cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.org-fantasma{position:fixed;z-index:50;pointer-events:none;opacity:.85;transform:rotate(-2deg);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.alvo-antes{box-shadow:-6px 0 0 0 var(--link)!important}
+.alvo-depois{box-shadow:6px 0 0 0 var(--link)!important}
+
+/* Árvore larga: começa na esquerda da rolagem (centralizada transbordava para fora e ficava inalcançável) */
+.org>ul{width:max-content;min-width:100%}
