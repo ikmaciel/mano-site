@@ -8,7 +8,9 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="icon" href="/mano.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
-<link rel="stylesheet" href="/painel-mano/painel.css?v=20261125e">
+<link rel="stylesheet" href="/base.css?v=20261127">
+<link rel="stylesheet" href="/formulario.css?v=20261127">
+<link rel="stylesheet" href="/painel-mano/painel.css?v=20261127">
 </head>
 <body>
 <!-- Área de superadministração (decisões do proprietário, 23/10/2026). Sem link no site; o acesso é conferido no
@@ -17,17 +19,17 @@
   <img src="/mano.png" alt="MANO">
   <div><strong>Painel MANO</strong><span id="ambiente">Produção</span></div>
   <span class="quem" id="quem"></span>
-  <button class="link" id="sair" hidden>Sair</button>
+  <button class="link" id="sair" type="button" hidden>Sair</button>
 </header>
 
 <section id="entrar" class="caixa estreita" hidden>
   <h1>Entrar</h1>
   <p class="fraco">Só para superadministração do MANO. Use a mesma conta do app.</p>
-  <button class="botao" id="google">Continuar com Google</button>
+  <button class="botao principal" id="google" type="button">Continuar com Google</button>
   <form id="form-senha">
     <label>E-mail<input type="email" id="email" autocomplete="username" required></label>
     <label>Senha<input type="password" id="senha" autocomplete="current-password" required></label>
-    <button class="botao claro" type="submit">Entrar com e-mail</button>
+    <button class="botao claro secundario" type="submit">Entrar com e-mail</button>
   </form>
   <p class="erro" id="erro-entrar" role="alert"></p>
 </section>

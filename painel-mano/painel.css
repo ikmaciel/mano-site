@@ -1,33 +1,19 @@
-:root{--bg:#f4f1e8;--fg:#171814;--muted:#5b5a52;--card:#faf8f2;--line:#ded5c0;--link:#224f5a;--accent:#a7181d;--btn-fg:#f4f1e8;--btn-bg:#171814;--ok:#2d6a4f;--vidro-claro:#7fa5ad;--vidro-escuro:#2a3d42;--moldura:#3b3f42;--moldura-luz:#70767b;--letreiro:#1b1c19;--letreiro-fg:#f4f1e8;--letreiro-fraco:#c9c3b2;--etiqueta:#b3161c}
-@media (prefers-color-scheme:dark){:root{--bg:#141512;--fg:#ece8dc;--muted:#a9a596;--card:#1d1f1a;--line:#34362e;--link:#8cc3cf;--accent:#e07a7e;--btn-fg:#141512;--btn-bg:#ece8dc;--ok:#7fc8a0;--vidro-claro:#567a82;--vidro-escuro:#16242a;--moldura:#2b2e31;--moldura-luz:#50565b;--letreiro:#0d0e0c}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.topo{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
-.topo img{width:40px;height:40px;border-radius:50%}
-.topo strong{display:block}.topo span{color:var(--muted);font-size:13px}
-.quem{margin-left:auto;font-size:13px;color:var(--muted)}
-main{max-width:1100px;margin:0 auto;padding:16px}
-h1{font-size:28px;margin:0 0 8px}h2{font-size:18px;margin:0 0 8px}
-.fraco{color:var(--muted);font-size:14px}
-.caixa{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:16px}
-.estreita{max-width:420px;margin:48px auto}
-.abas{display:flex;gap:6px;flex-wrap:wrap}
-.abas button{min-height:44px;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--fg);font-weight:700;cursor:pointer}
-.abas button[aria-selected=true]{background:var(--btn-bg);color:var(--btn-fg)}
-.botao{min-height:44px;padding:8px 16px;border-radius:10px;border:0;background:var(--btn-bg);color:var(--btn-fg);font-weight:700;cursor:pointer}
-.botao.claro{background:transparent;color:var(--fg);border:1px solid var(--line)}
-.botao.perigo{background:var(--accent);color:#fff}
-.link{background:none;border:0;color:var(--link);cursor:pointer;font-weight:700;min-height:44px}
-input,select{min-height:44px;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:inherit;width:100%}
-label{display:block;margin-top:12px;font-weight:600;font-size:14px}
-label input,label select{margin-top:4px}
-form .botao{margin-top:12px}
-.linha{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.linha>input{flex:1 1 240px;width:auto}.linha>select{width:auto}
-.fim{justify-content:flex-end}
-.erro{color:var(--accent);min-height:1em}
-.numeros{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.numero{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
-.numero b{display:block;font-size:28px;line-height:1.1}.numero span{color:var(--muted);font-size:13px}
+/* Painel. Base em /base.css e componentes em /formulario.css; aqui só o que é do painel.
+   Os nomes antigos apontam para os tokens do padrão, para a vitrine (430) e o organograma (504) manterem o desenho. */
+:root{--bg:var(--mano-bg);--fg:var(--mano-ink);--muted:var(--mano-muted);--card:var(--mano-card);--line:var(--mano-line);--link:#224f5a;--accent:var(--mano-danger);--btn-fg:var(--mano-on-ink);--btn-bg:var(--mano-ink);--ok:var(--mano-success);--vidro-claro:#7fa5ad;--vidro-escuro:#2a3d42;--moldura:#3b3f42;--moldura-luz:#70767b;--letreiro:#1b1c19;--letreiro-fg:#f4f1e8;--letreiro-fraco:#c9c3b2;--etiqueta:#b3161c}
+.topo{position:sticky;top:0;z-index:5}
+.quem{margin-inline-start:auto;font-size:.8125rem;color:var(--mano-muted)}
+main{inline-size:min(100%,68.75rem);margin-inline:auto;padding:var(--mano-space-4)}
+.estreita{max-inline-size:26.25rem;margin:var(--mano-space-8) auto}
+.estreita #google,.estreita form .botao{inline-size:100%;margin-top:var(--mano-space-3)}
+.abas{display:flex;gap:var(--mano-space-2);flex-wrap:wrap}
+.abas button{min-block-size:48px;padding:var(--mano-space-2) var(--mano-space-4);border-radius:999px;border:1px solid var(--mano-muted);background:var(--mano-card);color:var(--mano-ink);font-weight:700;cursor:pointer}
+.abas button[aria-selected=true]{background:var(--mano-ink);border-color:var(--mano-ink);color:var(--mano-on-ink)}
+form .botao{margin-top:var(--mano-space-3)}
+.linha>input{flex:1 1 15rem;inline-size:auto}.linha>select{inline-size:auto}
+.numeros{margin-top:var(--mano-space-4);display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.numero{background:var(--card);border:1px solid var(--line);border-radius:var(--mano-radius-card);padding:var(--mano-space-4)}
+.numero b{display:block;font-family:var(--mano-font-title);font-size:1.75rem;line-height:1.1;font-variant-numeric:tabular-nums}.numero span{color:var(--muted);font-size:13px}
 #mapa{height:420px;border-radius:12px;overflow:hidden;margin-top:8px}
 .barras{display:flex;align-items:flex-end;gap:2px;height:140px;overflow-x:auto;padding-top:8px}
 .barra{flex:1 0 8px;background:var(--link);border-radius:3px 3px 0 0;min-height:2px;position:relative}
@@ -39,12 +25,10 @@ form .botao{margin-top:12px}
 .selo{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid var(--line);margin-right:4px}
 .selo.ok{color:var(--ok);border-color:var(--ok)}.selo.alerta{color:var(--accent);border-color:var(--accent)}
 .brasao{width:44px;height:44px;border-radius:50%;object-fit:cover;background:var(--line)}
-dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--fg);max-width:560px;width:calc(100% - 32px)}
-dialog::backdrop{background:rgba(0,0,0,.45)}
 .membros{margin-top:8px;width:100%}
 /* Adesivos: cada lugar é a porta de vidro com os brasões colados (decisão 430 do app) */
 .vitrines{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:18px;margin-top:12px}
-.vitrine{display:flex;flex-direction:column;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.vitrine{display:flex;flex-direction:column;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:var(--mano-radius-card);overflow:hidden}
 .vitrine.aberta{grid-column:1/-1}
 .letreiro{display:flex;gap:12px;align-items:center;padding:10px 14px;background:var(--letreiro);color:var(--letreiro-fg);border-bottom:4px solid var(--etiqueta)}
 .letreiro>div:first-child{flex:1;min-width:0}
@@ -89,7 +73,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .grade-poderes td.sim{color:var(--ok);font-weight:900;font-size:18px}
 .grade-poderes td.nao{color:var(--muted)}
 #grupos-poderes{margin:8px 0}
-.unidade{border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:12px;background:var(--bg)}
+.unidade{border:2px solid var(--line);border-radius:var(--mano-radius-card);padding:12px;margin-top:12px;background:var(--bg)}
 .unidade.grupo{border-color:var(--fg)}
 .unidade.regional{border-color:var(--link)}
 .unidade.subsecao{border-style:dashed}

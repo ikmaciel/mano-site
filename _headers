@@ -9,6 +9,10 @@
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
 
+# Barlow das páginas (OFL). Pasta por versão: para mudar, publicar barlow-v2/ em vez de sobrescrever.
+/tipos/*
+  Cache-Control: public, max-age=31536000, immutable
+
 # Consentimento do OAuth: nunca guardar em cache.
 /oauth/*
   Cache-Control: no-store
