@@ -1,0 +1,29 @@
+/* Componentes comuns do Painel e da conexão com a IA: topo, caixa, botões, campos e janela.
+   Medidas da decisão 444 do app: principal 60, secundário 52, pequeno 48; cantos 12 (campo), 18 (cartão), 24 (janela). */
+body{font-size:1rem}
+.topo{display:flex;align-items:center;gap:var(--mano-space-3);padding:var(--mano-space-3) var(--mano-space-4);border-bottom:1px solid var(--mano-line);background:var(--mano-bg)}
+.topo img{inline-size:2.5rem;block-size:2.5rem;border-radius:50%;flex:none}
+.topo strong{display:block;font-family:var(--mano-font-title);font-size:1.25rem;line-height:1.1}
+.topo span{color:var(--mano-muted);font-size:.8125rem}
+h1{font-family:var(--mano-font-title);font-size:1.75rem;line-height:1.15;margin:0 0 var(--mano-space-2);overflow-wrap:anywhere}
+h2{font-size:1.125rem;line-height:1.3;margin:0 0 var(--mano-space-2)}
+.fraco{color:var(--mano-muted);font-size:.875rem}
+.caixa{background:var(--mano-card);border:1px solid var(--mano-line);border-radius:var(--mano-radius-card);padding:var(--mano-space-4);margin-top:var(--mano-space-4)}
+.botao{display:inline-flex;align-items:center;justify-content:center;min-block-size:48px;min-inline-size:48px;padding:var(--mano-space-2) var(--mano-space-4);border:1px solid var(--mano-ink);border-radius:var(--mano-radius-field);background:var(--mano-ink);color:var(--mano-on-ink);font-weight:700;line-height:1.3;text-align:center;cursor:pointer}
+.botao.claro{background:var(--mano-card);color:var(--mano-ink);border-color:var(--mano-muted)}
+.botao.perigo{background:var(--mano-danger);border-color:var(--mano-danger);color:var(--mano-on-danger)}
+.botao.principal{min-block-size:60px;border-radius:var(--mano-radius-card);font-size:1.0625rem}
+.botao.secundario{min-block-size:52px;border-radius:var(--mano-radius-card)}
+.botao:disabled{background:var(--mano-card);border-color:var(--mano-line);color:var(--mano-muted);cursor:not-allowed}
+.link{min-block-size:48px;padding:0 var(--mano-space-1);border:0;background:none;color:var(--mano-ink);font-weight:700;text-decoration:underline;text-underline-offset:.15em;cursor:pointer}
+input,select,textarea{inline-size:100%;min-block-size:52px;padding:var(--mano-space-3);border:1px solid var(--mano-muted);border-radius:var(--mano-radius-field);background:var(--mano-card);color:var(--mano-ink)}
+input[type=checkbox],input[type=radio]{inline-size:1.5rem;min-block-size:1.5rem;padding:0;accent-color:var(--mano-ink)}
+input[type=color]{inline-size:4rem;padding:var(--mano-space-1)}
+label{display:block;margin-top:var(--mano-space-3);font-weight:700;font-size:.875rem}
+label input,label select,label textarea{margin-top:var(--mano-space-1);font-weight:400;font-size:1rem}
+.erro{color:var(--mano-danger);min-block-size:1em}
+.linha{display:flex;gap:var(--mano-space-2);align-items:center;flex-wrap:wrap}
+.fim{justify-content:flex-end}
+.so-leitor{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+dialog{inline-size:calc(100% - 2rem);max-inline-size:35rem;padding:var(--mano-space-5);border:1px solid var(--mano-line);border-radius:var(--mano-radius-sheet);background:var(--mano-card);color:var(--mano-ink)}
+dialog::backdrop{background:rgba(23,24,20,.5)}

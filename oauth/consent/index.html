@@ -7,7 +7,9 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
 <link rel="icon" href="/mano.png">
-<link rel="stylesheet" href="/oauth/consent/consent.css?v=20261027">
+<link rel="stylesheet" href="/base.css?v=20261127">
+<link rel="stylesheet" href="/formulario.css?v=20261127">
+<link rel="stylesheet" href="/oauth/consent/consent.css?v=20261127">
 </head>
 <body>
 <!-- Tela de consentimento do OAuth do Supabase (MCP do MANO, decisões de 27/10/2026). O Supabase manda a pessoa
@@ -23,18 +25,18 @@
   <section id="entrar" class="caixa" hidden>
     <h1>Entre na sua conta MANO</h1>
     <p class="fraco">Uma IA pediu para se conectar ao seu MANO. Entre com a mesma conta do app para decidir.</p>
-    <button class="botao" id="google">Continuar com Google</button>
+    <button class="botao principal" id="google" type="button">Continuar com Google</button>
     <form id="form-senha">
       <label>E-mail<input type="email" id="email" autocomplete="username" required></label>
       <label>Senha<input type="password" id="senha" autocomplete="current-password" required></label>
-      <button class="botao claro" type="submit">Entrar com e-mail</button>
+      <button class="botao claro secundario" type="submit">Entrar com e-mail</button>
     </form>
     <p class="erro" id="erro-entrar" role="alert"></p>
   </section>
 
   <section id="pedido" class="caixa" hidden>
     <h1><span id="cliente"></span> quer acessar seu MANO</h1>
-    <p class="fraco">Conta: <b id="conta"></b> · <button class="link" id="trocar">Trocar de conta</button></p>
+    <p class="fraco">Conta: <b id="conta"></b> · <button class="link" id="trocar" type="button">Trocar de conta</button></p>
     <p class="aviso">Só permita se foi você quem pediu agora, na sua IA. O nome acima é informado pelo próprio aplicativo; confira para onde ele vai voltar: <b id="destino"></b></p>
 
     <h2>Ela vai poder</h2>
@@ -52,8 +54,8 @@
     <p class="fraco">Você pode tirar o acesso quando quiser.</p>
 
     <div class="linha">
-      <button class="botao claro" id="negar">Negar</button>
-      <button class="botao" id="permitir">Permitir</button>
+      <button class="botao claro secundario" id="negar" type="button">Negar</button>
+      <button class="botao principal" id="permitir" type="button">Permitir</button>
     </div>
     <p class="erro" id="erro-pedido" role="alert"></p>
   </section>

@@ -1,0 +1,38 @@
+/* Base visual de todas as páginas do site (padrão visual e UX do MANO, seção 22; decisão 444 do app).
+   Só o tema claro: o app travou o claro e o padrão não aceita tema escuro feito por inversão de cores. */
+@font-face{font-family:"Barlow";font-style:normal;font-weight:400;font-display:swap;src:url("/tipos/barlow-v1/Barlow-Regular.woff2") format("woff2")}
+@font-face{font-family:"Barlow";font-style:normal;font-weight:700;font-display:swap;src:url("/tipos/barlow-v1/Barlow-Bold.woff2") format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:700;font-display:swap;src:url("/tipos/barlow-v1/BarlowCondensed-Bold.woff2") format("woff2")}
+
+:root{
+  color-scheme:light;
+  --mano-bg:#f4f1e8;
+  --mano-surface:#faf8f2;
+  --mano-card:#fffdf7;
+  --mano-ink:#171814;
+  --mano-muted:#5c5546;
+  --mano-line:#d9cbb0;
+  --mano-selection:#e6dbc4;
+  --mano-danger:#a7181d;
+  --mano-on-danger:#ffffff;
+  --mano-on-ink:#f4f1e8;
+  --mano-warning-bg:#f6ead0;
+  --mano-warning-text:#5e3f0c;
+  --mano-success:#355c31;
+  --mano-success-bg:#e1ead9;
+  --mano-success-text:#28452a;
+  --mano-space-1:.25rem;--mano-space-2:.5rem;--mano-space-3:.75rem;--mano-space-4:1rem;--mano-space-5:1.25rem;--mano-space-6:1.5rem;--mano-space-8:2rem;
+  --mano-radius-field:.75rem;
+  --mano-radius-card:1.125rem;
+  --mano-radius-sheet:1.5rem;
+  --mano-font:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mano-font-title:"Barlow Condensed","Barlow",system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{font-size:100%;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--mano-bg);color:var(--mano-ink);font-family:var(--mano-font);line-height:1.5}
+button,input,select,textarea{font:inherit}
+a{color:var(--mano-ink);text-decoration-thickness:1px;text-underline-offset:.15em}
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid var(--mano-ink);outline-offset:3px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
